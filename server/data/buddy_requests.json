@@ -1,0 +1,21 @@
+[
+  {
+    "id": "req_1780305175064_f870z",
+    "clientId": null,
+    "anonymizedName": "Аружан",
+    "initials": "А",
+    "club": "Girls Crystal",
+    "clubId": "68c14ef824acbd015e2bc852",
+    "program": "INVICTUS GLUTE LAB",
+    "timeSlot": "Вечер (17–22)",
+    "format": "с одной девушкой",
+    "level": "Средний",
+    "goal": "Ягодицы",
+    "ageRange": "26–30",
+    "memberStatus": "хожу иногда",
+    "isGroup": false,
+    "status": "active",
+    "source": "local",
+    "createdAt": "2026-06-01T09:12:55.064Z"
+  }
+]
