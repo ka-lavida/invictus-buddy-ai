@@ -87,4 +87,7 @@ const getInfo = () => _client.getInfo();
 const isSchemaMissing = (err) =>
   ['42P01', '42703', '42883'].includes(err?.code);
 
-module.exports = { connect, query, useMock, mode, isSchemaMissing, getInfo };
+// client — used by routes that call mock-specific methods (girls.js)
+const getClient = () => _client;
+
+module.exports = { connect, query, useMock, mode, isSchemaMissing, getInfo, get client() { return _client; } };

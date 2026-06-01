@@ -57,6 +57,16 @@ export interface ProgramInfo {
 
 export const GIRLS_PROGRAMS: ProgramInfo[] = [
   {
+    key: 'barre',
+    name: 'Barre',
+    description: 'Грация балета + сила пилатеса. Тонус без ударной нагрузки.',
+    level: 'Средний',
+    goal: 'Тонус',
+    calories: 350,
+    tags: ['#barre', '#grace'],
+    matchProgram: 'Barre',
+  },
+  {
     key: 'glute-lab',
     name: 'INVICTUS GLUTE LAB',
     description: 'Работа на ягодицы и бёдра с весом и без — результат виден быстро.',
@@ -232,7 +242,7 @@ export const CAPACITY_STATS: CapacityStats[] = [
   { club: 'Orynbor',   city: 'Астана',    sqm: null, theoretical: 30, peakLoad: 68, avgLoad: 44, primeOverload: false, daytimeFree: 52, aiNote: 'Низкая загрузка дней. Приоритет: утренние buddy mini-groups.' },
   { club: 'Kunaeva',   city: 'Астана',    sqm: null, theoretical: 32, peakLoad: 74, avgLoad: 56, primeOverload: false, daytimeFree: 41, aiNote: 'Хорошая загрузка. Внедрить buddy-слоты в выходные.' },
   { club: 'Sfera',     city: 'Астана',    sqm: null, theoretical: 28, peakLoad: 65, avgLoad: 41, primeOverload: false, daytimeFree: 58, aiNote: 'Низкая загрузка. Buddy intro flow + маркетинг утренних часов.' },
-  { club: 'Karaganda', city: 'Кraraganda',sqm: null, theoretical: 38, peakLoad: 88, avgLoad: 64, primeOverload: true,  daytimeFree: 33, aiNote: 'Высокий weekend спрос. Buddy mini-groups в субботу 11:00.' },
+  { club: 'Karaganda', city: 'Караганда', sqm: null, theoretical: 38, peakLoad: 88, avgLoad: 64, primeOverload: true,  daytimeFree: 33, aiNote: 'Высокий weekend спрос. Buddy mini-groups в субботу 11:00.' },
 ];
 
 export interface Recommendation {

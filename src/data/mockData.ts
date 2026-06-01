@@ -15,7 +15,7 @@ export const POOL_FORMATS = ['с одной девушкой', 'в мини-гр
 export const FORMATS      = [...POOL_FORMATS, 'без разницы'] as const;
 
 export const LEVELS   = ['Новичок', 'Средний', 'Уверенный'] as const;
-export const GOALS    = ['Похудение', 'Тонус', 'Ягодицы', 'Растяжка', 'Вернуться в режим'] as const;
+export const GOALS    = ['Похудение', 'Тонус', 'Ягодицы', 'Растяжка', 'Вернуться в режим', 'Просто начать'] as const;
 export const AGE_RANGES = ['16–20', '21–25', '26–30', '31–35', '36–40', '40–50', '50+'] as const;
 export const MEMBER_STATUSES = [
   'впервые иду в Invictus Girls',
@@ -41,7 +41,9 @@ export type MemberStatus = typeof MEMBER_STATUSES[number];
 // ─── Form shape ───────────────────────────────────────────────────────────────
 
 export interface FormData {
-  club:         Club         | '';
+  city:         string;       // display-only (e.g. 'Алматы')
+  clubKey:      string;       // display-only club key (e.g. 'Crystal')
+  club:         Club         | '';  // matchName for engine (e.g. 'Girls Crystal')
   program:      Program      | '';
   timeSlot:     TimeSlot     | '';
   format:       Format       | '';
@@ -52,8 +54,8 @@ export interface FormData {
 }
 
 export const defaultFormData: FormData = {
-  club: '', program: '', timeSlot: '', format: '',
-  level: '', goal: '', ageRange: '', memberStatus: '',
+  city: '', clubKey: '', club: '', program: '', timeSlot: '',
+  format: '', level: '', goal: '', ageRange: '', memberStatus: '',
 };
 
 // ─── Buddy Request Pool ───────────────────────────────────────────────────────

@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { ModeToggle } from './components/shared/ModeToggle';
-import { DwhBadge }   from './components/shared/DwhBadge';
-import { HeroBlock }   from './components/client/HeroBlock';
-import { BuddyForm }   from './components/client/BuddyForm';
-import { BuddyMatches } from './components/client/BuddyMatches';
-import { AdminDashboard } from './components/admin/AdminDashboard';
+import { ModeToggle }      from './components/shared/ModeToggle';
+import { DwhBadge }        from './components/shared/DwhBadge';
+import { HeroBlock }       from './components/client/HeroBlock';
+import { ClientWizard }    from './components/client/ClientWizard';
+import { HowItWorks }      from './components/client/HowItWorks';
+import { BuddyMatches }    from './components/client/BuddyMatches';
+import { AdminDashboard }  from './components/admin/AdminDashboard';
 import { defaultFormData, buddyPool, type FormData } from './data/mockData';
 import { findBuddyMatches, type MatchResult } from './utils/matching';
 
 type Mode  = 'client' | 'admin';
-type Stage = 'hero' | 'form' | 'matches'; // client mode steps
+type Stage = 'hero' | 'wizard' | 'how-it-works' | 'matches';
 
 export default function App() {
   const [mode,      setMode]      = useState<Mode>('client');
@@ -19,7 +20,6 @@ export default function App() {
   const [toast,     setToast]     = useState('');
   const [toastShow, setToastShow] = useState(false);
 
-  // Auto-dismiss toast after 3 s
   useEffect(() => {
     if (!toast) return;
     setToastShow(true);
@@ -41,8 +41,7 @@ export default function App() {
     }
   };
 
-  const handleFormSubmit = (data: FormData) => {
-    // Run matching engine against the full buddy pool
+  const handleWizardSubmit = (data: FormData) => {
     const results = findBuddyMatches(data, buddyPool);
     setFormData(data);
     setMatches(results);
@@ -51,15 +50,19 @@ export default function App() {
   };
 
   const handleReset = () => {
-    setStage('form');
+    setStage('wizard');
     setFormData(defaultFormData);
     setMatches([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const goHero = () => {
+    setStage('hero');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="app">
-      {/* ── Global Header ───────────────────────────────────────────────── */}
       <header className="header">
         <div className="header__logo">
           <div className="header__logo-mark">♡</div>
@@ -68,26 +71,33 @@ export default function App() {
             <span className="header__logo-sub">Buddy AI</span>
           </div>
         </div>
-
         <DwhBadge variant="pill" />
         <ModeToggle mode={mode} onChange={handleModeChange} />
       </header>
 
-      {/* ── Main Content ────────────────────────────────────────────────── */}
       <main style={{ flex: 1 }}>
         {mode === 'admin' ? (
-          /* Admin: full analytics dashboard */
           <AdminDashboard />
         ) : (
-          /* Client: hero → form → matches flow */
           <>
-            {/* Hero is always visible; CTA scrolls to form */}
-            <HeroBlock onFindBuddy={() => setStage(stage === 'hero' ? 'form' : 'hero')} />
-
-            {stage === 'form' && (
-              <BuddyForm onSubmit={handleFormSubmit} />
+            {stage === 'hero' && (
+              <HeroBlock
+                onFindBuddy={() => setStage('wizard')}
+                onHowItWorks={() => setStage('how-it-works')}
+              />
             )}
-
+            {stage === 'wizard' && (
+              <ClientWizard
+                onSubmit={handleWizardSubmit}
+                onBack={goHero}
+              />
+            )}
+            {stage === 'how-it-works' && (
+              <HowItWorks
+                onFindBuddy={() => setStage('wizard')}
+                onBack={goHero}
+              />
+            )}
             {stage === 'matches' && (
               <BuddyMatches
                 matches={matches}
@@ -100,7 +110,6 @@ export default function App() {
         )}
       </main>
 
-      {/* ── Toast ───────────────────────────────────────────────────────── */}
       {toast && (
         <div className={`toast ${toastShow ? 'toast--visible' : ''}`} aria-live="polite">
           {toast}

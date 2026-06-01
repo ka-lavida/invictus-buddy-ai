@@ -114,6 +114,31 @@ router.get('/funnel', async (req, res, next) => {
   }
 });
 
+// ─── GET /api/admin/clubs ─────────────────────────────────────────────────────
+router.get('/clubs', (_req, res) => {
+  res.json({ ok: true, source: 'mock', data: mock.clubStats || [] });
+});
+
+// ─── GET /api/admin/programs ──────────────────────────────────────────────────
+router.get('/programs', (_req, res) => {
+  res.json({ ok: true, source: 'mock', data: mock.programStats || [] });
+});
+
+// ─── GET /api/admin/retention ─────────────────────────────────────────────────
+router.get('/retention', (_req, res) => {
+  res.json({ ok: true, source: 'mock', data: mock.retentionStats || [] });
+});
+
+// ─── GET /api/admin/capacity ──────────────────────────────────────────────────
+router.get('/capacity', (_req, res) => {
+  res.json({ ok: true, source: 'mock', data: mock.capacityStats || [] });
+});
+
+// ─── GET /api/admin/recommendations ──────────────────────────────────────────
+router.get('/recommendations', (_req, res) => {
+  res.json({ ok: true, source: 'mock', data: mock.recommendations || [] });
+});
+
 // ─── GET /api/admin/requests ──────────────────────────────────────────────────
 // Последние 5 buddy-запросов из локального JSON (не из DWH).
 // Используется в admin-дашборде для отображения активности.

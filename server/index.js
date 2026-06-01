@@ -26,6 +26,7 @@ const cors       = require('cors');
 const dwh        = require('./dwh');       // единственный источник DWH
 const buddyRouter = require('./routes/buddy');
 const adminRouter = require('./routes/admin');
+const girlsRouter = require('./routes/girls');
 
 const app  = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -76,6 +77,7 @@ app.get('/api/health', async (_req, res) => {
 
 app.use('/api/buddy', buddyRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/girls', girlsRouter);
 
 // 404
 app.use((_req, res) => {
