@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 200" fill="none">
+  <!-- Background block -->
+  <rect width="180" height="200" rx="16" fill="#4B5269"/>
+  <!-- Hexagon -->
+  <polygon points="90,18 122,36 122,72 90,90 58,72 58,36" fill="white"/>
+  <!-- INVICTUS text -->
+  <text x="90" y="126" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="5" fill="white" text-transform="uppercase">INVICTUS</text>
+  <!-- girls text -->
+  <text x="90" y="166" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="900" fill="white">girls</text>
+</svg>

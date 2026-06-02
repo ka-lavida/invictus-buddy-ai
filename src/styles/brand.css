@@ -1,0 +1,409 @@
+/* ──────────────────────────────────────────────
+   INVICTUS GIRLS — Brand Design System
+   Version: 2.0
+   Style: editorial · bold · premium · women-only
+   ────────────────────────────────────────────── */
+
+/* ─── FONTS ─────────────────────────────────── */
+
+@font-face {
+  font-family: 'InvictusAlien';
+  src: url('../assets/fonts/invictusalieneight-boldextended.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'InvictusAlien';
+  src: url('../assets/fonts/invictusalieneight-boldextendeditalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* IBM Plex Sans via Google Fonts (loaded in index.html) */
+
+/* ─── DESIGN TOKENS ─────────────────────────── */
+
+:root {
+  /* --- Core Palette --- */
+  --ig-black:     #050505;
+  --ig-graphite:  #1a1a1a;
+  --ig-graphite2: #2f2f2f;
+  --ig-white:     #ffffff;
+  --ig-offwhite:  #f4f4f4;
+  --ig-fog:       #e8e8e8;
+
+  /* --- Brand Blue-Slate (from logo) --- */
+  --ig-blue:      #4B5269;
+  --ig-blue-dark: #383d52;
+  --ig-blue-soft: #636b89;
+  --ig-blue-pale: #eef0f5;
+  --ig-blue-mist: #d6d9e3;
+
+  /* --- Silver / Neutral --- */
+  --ig-silver:    #9a9a9a;
+  --ig-border:    #e0e0e0;
+  --ig-border-dark: #d0d0d0;
+  --ig-muted:     #6b6b6b;
+
+  /* --- Semantic --- */
+  --ig-danger:    #d94f4f;
+  --ig-success:   #3d8a6e;
+  --ig-warning:   #b57e2a;
+
+  /* --- Warm accent (minimal, for buddy/match elements only) --- */
+  --ig-rose:      #c9524a;
+  --ig-rose-pale: #fdf3f2;
+  --ig-gold:      #b8893a;
+  --ig-gold-pale: #fdf8f0;
+
+  /* ─── SEMANTIC ALIASES (replaces old --rose/--gold/--sage) ─── */
+  --bg:           var(--ig-offwhite);
+  --surface:      var(--ig-white);
+  --surface-2:    var(--ig-fog);
+  --text:         var(--ig-black);
+  --text-2:       var(--ig-graphite2);
+  --text-muted:   var(--ig-muted);
+  --border:       var(--ig-border);
+  --border-light: var(--ig-fog);
+
+  /* Keep old vars mapped for admin tabs that still use them */
+  --rose:         var(--ig-rose);
+  --rose-dark:    #a83d35;
+  --rose-pale:    var(--ig-rose-pale);
+  --gold:         var(--ig-gold);
+  --sage:         var(--ig-success);
+  --sage-light:   #eef5f1;
+  --coral:        #d94f4f;
+  --lavender:     var(--ig-blue-soft);
+  --lavender-light: var(--ig-blue-pale);
+
+  /* ─── TYPOGRAPHY ─── */
+  --font-display: 'InvictusAlien', 'Arial Black', sans-serif;
+  --font-body:    'IBM Plex Sans', 'IBM Sans', system-ui, sans-serif;
+  --font-mono:    'IBM Plex Mono', 'IBM Plex Sans', monospace;
+
+  /* ─── SPACING & RADIUS ─── */
+  --r-xs:   4px;
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   24px;
+  --r-full: 999px;
+
+  /* ─── SHADOW ─── */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.12);
+  --shadow-xl:  0 16px 48px rgba(0,0,0,0.15);
+
+  /* ─── MOTION ─── */
+  --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:    cubic-bezier(0.4, 0, 1, 1);
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast:   140ms;
+  --dur-mid:    240ms;
+  --dur-slow:   400ms;
+}
+
+/* ─── BASE RESET & TYPOGRAPHY ─────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--ig-offwhite);
+  color: var(--ig-black);
+  line-height: 1.5;
+}
+
+/* ─── DISPLAY / HEADING UTILITY ─────────────── */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+}
+
+.display-xl  { font-size: clamp(48px, 8vw, 96px); }
+.display-lg  { font-size: clamp(36px, 6vw, 64px); }
+.display-md  { font-size: clamp(24px, 4vw, 40px); }
+.display-sm  { font-size: clamp(18px, 3vw, 28px); }
+
+/* ─── LABEL UTILITY ─────────────────────────── */
+
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ig-muted);
+}
+
+/* ─── LOGO BLOCK ─────────────────────────────── */
+
+.ig-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ig-logo__hex {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.ig-logo__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.ig-logo__brand {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: inherit;
+  font-weight: 500;
+}
+
+.ig-logo__name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: inherit;
+  letter-spacing: -0.02em;
+}
+
+/* Location logoblock */
+.ig-logoblock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ig-logoblock__club {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ig-muted);
+}
+
+.ig-logoblock__location {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: lowercase;
+  color: var(--ig-blue);
+  font-weight: 600;
+}
+
+/* ─── BUTTON SYSTEM ──────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+  border: none;
+  outline: none;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn:active { transform: scale(0.98); }
+
+/* Primary — black */
+.btn-primary {
+  background: var(--ig-black);
+  color: var(--ig-white);
+  padding: 14px 28px;
+}
+.btn-primary:hover {
+  background: var(--ig-graphite);
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary — outlined */
+.btn-secondary {
+  background: transparent;
+  color: var(--ig-black);
+  border: 1.5px solid var(--ig-black);
+  padding: 13px 27px;
+}
+.btn-secondary:hover {
+  background: var(--ig-black);
+  color: var(--ig-white);
+}
+
+/* Brand — blue-slate */
+.btn-brand {
+  background: var(--ig-blue);
+  color: var(--ig-white);
+  padding: 14px 28px;
+}
+.btn-brand:hover {
+  background: var(--ig-blue-dark);
+  box-shadow: var(--shadow-md);
+}
+
+/* Ghost */
+.btn-ghost {
+  background: transparent;
+  color: var(--ig-graphite2);
+  padding: 10px 16px;
+  border: 1px solid var(--ig-border);
+}
+.btn-ghost:hover {
+  background: var(--ig-fog);
+  border-color: var(--ig-border-dark);
+}
+
+/* Size variants */
+.btn-lg { padding: 16px 36px; font-size: 16px; }
+.btn-sm { padding: 8px 16px; font-size: 12px; }
+
+/* ─── CARD SYSTEM ────────────────────────────── */
+
+.card {
+  background: var(--ig-white);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--ig-border);
+}
+
+.card-dark {
+  background: var(--ig-black);
+  border-radius: var(--r-lg);
+  color: var(--ig-white);
+}
+
+.card-brand {
+  background: var(--ig-blue);
+  border-radius: var(--r-lg);
+  color: var(--ig-white);
+}
+
+/* ─── DWH SOURCE BADGE ───────────────────────── */
+
+.dwh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--ig-blue-pale);
+  border: 1px solid var(--ig-blue-mist);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ig-blue-dark);
+  letter-spacing: 0.06em;
+}
+
+/* ─── PROGRAM IDENTITY CHIPS ─────────────────── */
+
+.prog-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--ig-graphite2);
+  color: var(--ig-white);
+}
+
+.prog-chip--blue    { background: var(--ig-blue); }
+.prog-chip--dark    { background: var(--ig-graphite); }
+.prog-chip--outline { background: transparent; border: 1px solid var(--ig-graphite); color: var(--ig-graphite); }
+
+/* ─── FILL RATE BAR ──────────────────────────── */
+
+.fill-bar {
+  height: 5px;
+  background: var(--ig-fog);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.fill-bar__fill {
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+
+.fill-bar__fill--high   { background: var(--ig-success); }
+.fill-bar__fill--mid    { background: var(--ig-gold); }
+.fill-bar__fill--low    { background: var(--ig-danger); }
+
+/* ─── SCROLLBAR ──────────────────────────────── */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ig-border); border-radius: var(--r-full); }
+
+/* ─── METRIC CARD (admin) ────────────────────── */
+
+.metric-card {
+  background: var(--ig-white);
+  border: 1px solid var(--ig-border);
+  border-radius: var(--r-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+/* ─── CHART CARD (admin) ─────────────────────── */
+
+.chart-card {
+  background: var(--ig-white);
+  border: 1px solid var(--ig-border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.chart-card__title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ig-black);
+  letter-spacing: 0.01em;
+}

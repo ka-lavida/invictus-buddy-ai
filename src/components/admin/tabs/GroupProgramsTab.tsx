@@ -58,11 +58,9 @@ export function GroupProgramsTab() {
     <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
 
       {/* DWH source */}
-      <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 12px',
-        background:'var(--sage-light)', border:'1px solid rgba(123,174,158,0.3)',
-        borderRadius:'var(--r-sm)', fontSize:12, color:'#3A6858' }}>
-        <Database size={13} />
-        <span>Все программы Girls-клубов · DWH (mongo.events + mongo.grouptrainings) · 60 дней · {DWH_NETWORK_PROGRAMS.length} программ</span>
+      <div className="dwh-badge">
+        <Database size={11} />
+        <span>DWH: mongo.events + mongo.grouptrainings · 60 дней · {DWH_NETWORK_PROGRAMS.length} программ</span>
       </div>
 
       {/* Search + Sort controls */}
@@ -81,11 +79,16 @@ export function GroupProgramsTab() {
         <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
           {(['bookings','fillRate','clubsActive','totalEvents'] as SortKey[]).map(k => (
             <button key={k} onClick={() => handleSort(k)}
-              style={{ padding:'6px 12px', borderRadius:'var(--r-full)', fontSize:12, fontWeight:600,
-                background: sortKey === k ? 'var(--rose)' : 'var(--surface)',
-                color: sortKey === k ? '#fff' : 'var(--text-2)',
-                border: sortKey === k ? 'none' : '1px solid var(--border)',
-                display:'flex', alignItems:'center', gap:4, cursor:'pointer' }}>
+              style={{
+                padding: '6px 14px', borderRadius: 'var(--r-full)',
+                fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600,
+                letterSpacing: '0.04em',
+                background: sortKey === k ? 'var(--ig-black)' : 'var(--surface)',
+                color: sortKey === k ? '#fff' : 'var(--ig-muted)',
+                border: sortKey === k ? 'none' : '1px solid var(--ig-border)',
+                display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+                transition: 'all var(--t)',
+              }}>
               {{ bookings:'Записей', fillRate:'Fill rate', clubsActive:'Клубов', totalEvents:'Событий' }[k]}
               <SortIcon k={k} />
             </button>
@@ -127,7 +130,7 @@ export function GroupProgramsTab() {
               {sorted.map(p => {
                 const isExp = expanded === p.program;
                 const fr = p.fillRate;
-                const frColor = fr >= 70 ? 'var(--sage)' : fr >= 50 ? 'var(--gold)' : 'var(--coral)';
+                const frColor = fr >= 70 ? 'var(--ig-success)' : fr >= 50 ? 'var(--ig-warning)' : 'var(--ig-danger)';
                 return [
                   <tr key={p.program}
                     style={{ borderBottom:'1px solid var(--border-light)', cursor:'pointer' }}
@@ -138,7 +141,7 @@ export function GroupProgramsTab() {
                       {p.program}
                     </td>
                     <td style={{ padding:'10px 12px', color:'var(--text-2)' }}>{p.totalEvents}</td>
-                    <td style={{ padding:'10px 12px', fontWeight:700, color:'var(--rose-dark)' }}>
+                    <td style={{ padding:'10px 12px', fontFamily: 'var(--font-display)', fontWeight:700, color:'var(--ig-black)' }}>
                       {p.bookings.toLocaleString()}
                     </td>
                     <td style={{ padding:'10px 12px' }}>
@@ -150,8 +153,8 @@ export function GroupProgramsTab() {
                       </div>
                     </td>
                     <td style={{ padding:'10px 12px' }}>
-                      <span style={{ background:'var(--lavender-light)', color:'var(--lavender)',
-                        padding:'2px 8px', borderRadius:99, fontSize:11, fontWeight:700 }}>
+                      <span style={{ background:'var(--ig-blue-pale)', color:'var(--ig-blue-dark)',
+                        padding:'2px 8px', borderRadius:99, fontFamily: 'var(--font-mono)', fontSize:10, fontWeight:600, letterSpacing:'0.04em' }}>
                         {p.clubsActive} кл.
                       </span>
                     </td>
@@ -161,7 +164,7 @@ export function GroupProgramsTab() {
                   </tr>,
                   isExp && (
                     <tr key={`${p.program}-detail`}>
-                      <td colSpan={6} style={{ padding:'0 12px 12px', background:'var(--rose-pale)' }}>
+                      <td colSpan={6} style={{ padding:'0 12px 12px', background:'var(--ig-blue-pale)' }}>
                         <div style={{ padding:'12px 16px', borderRadius:'var(--r-sm)',
                           display:'flex', gap:24, flexWrap:'wrap', fontSize:12 }}>
                           <div>
@@ -174,7 +177,7 @@ export function GroupProgramsTab() {
                           </div>
                           <div style={{ flex:1, minWidth:200 }}>
                             <div style={{ color:'var(--text-muted)', marginBottom:4 }}>AI-рекомендация</div>
-                            <div style={{ color:'var(--rose-dark)', fontWeight:500, lineHeight:1.5 }}>
+                            <div style={{ color:'var(--ig-blue-dark)', fontWeight:500, lineHeight:1.5 }}>
                               ✦ {getNote(p.program)}
                             </div>
                           </div>

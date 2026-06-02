@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 52" fill="none">
+  <!-- Compact horizontal logoblock -->
+  <rect width="120" height="52" rx="8" fill="#4B5269"/>
+  <!-- Mini hex -->
+  <polygon points="18,10 26,14 26,26 18,30 10,26 10,14" fill="white"/>
+  <!-- Text -->
+  <text x="34" y="22" font-family="Arial, sans-serif" font-size="7" font-weight="700" letter-spacing="2" fill="white">INVICTUS</text>
+  <text x="34" y="38" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="white">girls</text>
+</svg>

@@ -51,9 +51,25 @@ function ProgramCard({
       <div className="wizard-program-card__name">{name}</div>
       <div className="wizard-program-card__desc">{description}</div>
       <div className="wizard-program-card__footer">
-        {level && <span className="badge badge--lavender" style={{ fontSize: 11 }}>{level}</span>}
+        {level && (
+          <span style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 9,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: selected ? 'rgba(255,255,255,0.45)' : 'var(--ig-muted)',
+            padding: '2px 7px',
+            border: `1px solid ${selected ? 'rgba(255,255,255,0.15)' : 'var(--ig-border)'}`,
+            borderRadius: 99,
+          }}>{level}</span>
+        )}
         {tags.slice(0, 2).map(t => (
-          <span key={t} className="badge" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)', fontSize: 11 }}>{t}</span>
+          <span key={t} style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 9,
+            letterSpacing: '0.10em',
+            color: selected ? 'rgba(255,255,255,0.35)' : 'var(--ig-muted)',
+          }}>{t}</span>
         ))}
       </div>
     </button>
@@ -132,7 +148,8 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
     switch (step) {
       case 0: return (
         <div className="wizard-step">
-          <div className="wizard-step__question">В каком городе твой клуб?</div>
+          <div className="wizard-step__question">Сначала выберем город</div>
+          <div className="wizard-step__hint">Где тебе удобнее тренироваться?</div>
           <div className="wizard-chips">
             {GIRLS_CITIES.map(c => (
               <OptionChip key={c} label={c} selected={city === c} onClick={() => setCity(c)} />
@@ -144,6 +161,7 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
       case 1: return (
         <div className="wizard-step">
           <div className="wizard-step__question">Выбери свой клуб</div>
+          <div className="wizard-step__hint">Invictus Girls в {city}</div>
           <div className="wizard-chips">
             {clubsForCity.map(c => (
               <OptionChip
@@ -160,7 +178,8 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
 
       case 2: return (
         <div className="wizard-step">
-          <div className="wizard-step__question">Твой возрастной диапазон?</div>
+          <div className="wizard-step__question">Твой возраст?</div>
+          <div className="wizard-step__hint">Покажем только тех, кто в похожей категории</div>
           <div className="wizard-chips wizard-chips--grid">
             {AGE_RANGES.map(a => (
               <OptionChip key={a} label={a + ' лет'} selected={ageRange === a} onClick={() => setAgeRange(a)} />
@@ -171,8 +190,8 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
 
       case 3: return (
         <div className="wizard-step">
-          <div className="wizard-step__question">На что хочешь пойти?</div>
-          <div className="wizard-step__hint">Не знаешь — выбери последний вариант</div>
+          <div className="wizard-step__question">Выбери программу или доверь подбор</div>
+          <div className="wizard-step__hint">Если не знаешь — выбери последний вариант</div>
           <div className="wizard-programs">
             {GIRLS_PROGRAMS.filter(p => p.key !== 'unknown').map(p => (
               <ProgramCard
@@ -206,7 +225,8 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
 
       case 4: return (
         <div className="wizard-step">
-          <div className="wizard-step__question">Мне комфортнее пойти</div>
+          <div className="wizard-step__question">С кем тебе комфортнее?</div>
+          <div className="wizard-step__hint">Выбери формат, который тебе подходит</div>
           <div className="wizard-chips">
             {FORMATS.map(f => (
               <OptionChip key={f} label={f} selected={format === f} onClick={() => setFormat(f)} />
@@ -217,7 +237,8 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
 
       case 5: return (
         <div className="wizard-step">
-          <div className="wizard-step__question">Твой уровень</div>
+          <div className="wizard-step__question">Какой у тебя уровень?</div>
+          <div className="wizard-step__hint">Честно — мы подберём тех, кто на одном уровне</div>
           <div className="wizard-chips">
             {LEVELS.map(l => (
               <OptionChip key={l} label={l} selected={level === l} onClick={() => setLevel(l)} />
@@ -228,7 +249,8 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
 
       case 6: return (
         <div className="wizard-step">
-          <div className="wizard-step__question">Что хочешь получить?</div>
+          <div className="wizard-step__question">Что хочешь почувствовать после?</div>
+          <div className="wizard-step__hint">Твоя цель — наш главный фильтр</div>
           <div className="wizard-chips wizard-chips--grid">
             {GOALS.map(g => (
               <OptionChip key={g} label={g} selected={goal === g} onClick={() => setGoal(g)} />
@@ -239,7 +261,8 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
 
       case 7: return (
         <div className="wizard-step">
-          <div className="wizard-step__question">Ты сейчас</div>
+          <div className="wizard-step__question">Ты сейчас в каком ритме?</div>
+          <div className="wizard-step__hint">Подберём того, кто в похожей ситуации</div>
           <div className="wizard-chips">
             {MEMBER_STATUSES.map(s => (
               <OptionChip key={s} label={s} selected={memberStatus === s} onClick={() => setMemberStatus(s)} />

@@ -65,10 +65,15 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div className="header__logo">
-          <div className="header__logo-mark">♡</div>
+          {/* Inline hex logomark */}
+          <svg className="header__hex" viewBox="0 0 44 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="22,2 40,12 40,36 22,46 4,36 4,12" fill="#4B5269"/>
+            <polygon points="22,10 34,17 34,31 22,38 10,31 10,17" fill="white" fillOpacity="0.15"/>
+            <polygon points="22,14 30,19 30,29 22,34 14,29 14,19" fill="white" fillOpacity="0.9"/>
+          </svg>
           <div className="header__logo-text">
             <span className="header__logo-brand">Invictus</span>
-            <span className="header__logo-sub">Buddy AI</span>
+            <span className="header__logo-name">girls</span>
           </div>
         </div>
         <DwhBadge variant="pill" />

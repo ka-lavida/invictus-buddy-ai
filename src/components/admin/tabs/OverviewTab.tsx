@@ -13,11 +13,20 @@ import { DwhBadge }        from '../../shared/DwhBadge';
 const AreaTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background:'#fff', border:'1px solid #EDE9E5', borderRadius:10, padding:'10px 14px', boxShadow:'0 4px 16px rgba(30,27,46,0.10)', fontSize:13 }}>
-      <div style={{ fontWeight:700, marginBottom:6, color:'#1E1B2E' }}>{label}</div>
+    <div style={{
+      background: '#fff',
+      border: '1px solid var(--ig-border)',
+      borderRadius: 8,
+      padding: '10px 14px',
+      boxShadow: 'var(--sh)',
+      fontSize: 12,
+      fontFamily: 'var(--font-body)',
+    }}>
+      <div style={{ fontWeight: 700, marginBottom: 6, color: 'var(--ig-black)' }}>{label}</div>
       {payload.map((e: any) => (
-        <div key={e.name} style={{ color:e.color, display:'flex', gap:8, marginBottom:2 }}>
-          <span>{e.name}:</span><span style={{ fontWeight:600 }}>{e.value}</span>
+        <div key={e.name} style={{ color: e.color, display: 'flex', gap: 8, marginBottom: 2 }}>
+          <span>{e.name}:</span>
+          <span style={{ fontWeight: 600 }}>{e.value}</span>
         </div>
       ))}
     </div>
@@ -27,46 +36,93 @@ const AreaTooltip = ({ active, payload, label }: any) => {
 export function OverviewTab() {
   return (
     <>
+      {/* KPI Row */}
       <div className="metrics-grid">
-        <MetricCard icon={Users}       iconBg="var(--rose-light)"    iconColor="var(--rose-dark)" value={adminMetrics.totalRequests}  label="Запросов на buddy"      trend={12} />
-        <MetricCard icon={Heart}       iconBg="var(--lavender-light)" iconColor="var(--lavender)"  value={adminMetrics.matchesFound}   label="Матчей найдено"         trend={9}  />
-        <MetricCard icon={Calendar}    iconBg="var(--gold-light)"     iconColor="var(--gold)"      value={adminMetrics.bookedTogether} label="Записались вместе"      trend={18} />
-        <MetricCard icon={CheckCircle} iconBg="var(--sage-light)"     iconColor="var(--sage)"      value={adminMetrics.attended}       label="Пришли на тренировку"   trend={5}  />
-        <MetricCard icon={TrendingUp}  iconBg="var(--surface-2)"      iconColor="var(--text-2)"    value={`${adminMetrics.conversionRate}%`} label="Конверсия в посещение" trend={-2} />
+        <MetricCard
+          icon={Users}
+          iconBg="var(--ig-blue-pale)"
+          iconColor="var(--ig-blue-dark)"
+          value={adminMetrics.totalRequests}
+          label="Запросов на buddy"
+          trend={12}
+        />
+        <MetricCard
+          icon={Heart}
+          iconBg="var(--ig-fog)"
+          iconColor="var(--ig-graphite2)"
+          value={adminMetrics.matchesFound}
+          label="Матчей найдено"
+          trend={9}
+        />
+        <MetricCard
+          icon={Calendar}
+          iconBg="var(--gold-light)"
+          iconColor="var(--ig-warning)"
+          value={adminMetrics.bookedTogether}
+          label="Записались вместе"
+          trend={18}
+        />
+        <MetricCard
+          icon={CheckCircle}
+          iconBg="var(--sage-light)"
+          iconColor="var(--ig-success)"
+          value={adminMetrics.attended}
+          label="Пришли на тренировку"
+          trend={5}
+        />
+        <MetricCard
+          icon={TrendingUp}
+          iconBg="var(--ig-fog)"
+          iconColor="var(--ig-muted)"
+          value={`${adminMetrics.conversionRate}%`}
+          label="Конверсия в посещение"
+          trend={-2}
+        />
       </div>
 
+      {/* Weekly trend */}
       <div className="charts-row" style={{ marginBottom: 24 }}>
         <div className="chart-card chart-card--full">
           <div className="chart-card__header">
             <div>
               <div className="chart-card__title">Недельный тренд</div>
-              <div className="chart-card__subtitle">запросы и матчи по дням</div>
+              <div style={{ fontSize: 11, color: 'var(--ig-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em', marginTop: 2 }}>
+                запросы и матчи по дням
+              </div>
             </div>
-            <div className="trend-legend">
-              <div className="trend-legend__item"><div className="trend-legend__dot" style={{ background:'#C4879A' }} />Запросы</div>
-              <div className="trend-legend__item"><div className="trend-legend__dot" style={{ background:'#C9A96E' }} />Матчи</div>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 10, height: 2, background: 'var(--ig-black)', borderRadius: 2 }} />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ig-muted)', letterSpacing: '0.06em' }}>Запросы</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 10, height: 2, background: 'var(--ig-blue)', borderRadius: 2 }} />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ig-muted)', letterSpacing: '0.06em' }}>Матчи</span>
+              </div>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={weeklyTrend} margin={{ left:-10, right:8, top:4, bottom:0 }}>
-              <defs>
-                <linearGradient id="gReq" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#C4879A" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#C4879A" stopOpacity={0.01} />
-                </linearGradient>
-                <linearGradient id="gMat" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#C9A96E" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#C9A96E" stopOpacity={0.01} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#EDE9E5" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize:12, fill:'#A09EB0' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize:11, fill:'#A09EB0' }} axisLine={false} tickLine={false} />
-              <Tooltip content={<AreaTooltip />} />
-              <Area type="monotone" dataKey="requests" name="Запросы" stroke="#C4879A" strokeWidth={2.5} fill="url(#gReq)" dot={false} />
-              <Area type="monotone" dataKey="matches"  name="Матчи"   stroke="#C9A96E" strokeWidth={2.5} fill="url(#gMat)" dot={false} />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div style={{ padding: '12px 8px 16px' }}>
+            <ResponsiveContainer width="100%" height={190}>
+              <AreaChart data={weeklyTrend} margin={{ left: -10, right: 8, top: 4, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gReq" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#050505" stopOpacity={0.12} />
+                    <stop offset="95%" stopColor="#050505" stopOpacity={0.01} />
+                  </linearGradient>
+                  <linearGradient id="gMat" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#4B5269" stopOpacity={0.18} />
+                    <stop offset="95%" stopColor="#4B5269" stopOpacity={0.01} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="2 4" stroke="var(--ig-fog)" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: 'var(--ig-muted)', fontFamily: 'IBM Plex Mono' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: 'var(--ig-muted)', fontFamily: 'IBM Plex Mono' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<AreaTooltip />} />
+                <Area type="monotone" dataKey="requests" name="Запросы" stroke="#050505" strokeWidth={2} fill="url(#gReq)" dot={false} />
+                <Area type="monotone" dataKey="matches"  name="Матчи"   stroke="#4B5269" strokeWidth={2} fill="url(#gMat)" dot={false} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 

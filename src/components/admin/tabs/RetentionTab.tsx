@@ -23,13 +23,11 @@ export function RetentionTab() {
     <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
 
       {/* Source banner */}
-      <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 12px',
-        background:'var(--sage-light)', border:'1px solid rgba(123,174,158,0.3)',
-        borderRadius:'var(--r-sm)', fontSize:12, color:'#3A6858' }}>
-        <Database size={13} />
+      <div className="dwh-badge">
+        <Database size={11} />
         <span>
-          Retention proxy via DWH (mongo.events.participants) · период: 30д vs предыдущие 30д ·
-          метрика: % текущих участников, которые также посещали в предыдущем периоде
+          Retention proxy via DWH (mongo.events.participants) · 30д vs предыдущие 30д ·
+          % текущих участников, посещавших в предыдущем периоде
         </span>
       </div>
 
@@ -39,11 +37,19 @@ export function RetentionTab() {
         {['all', ...clubs.map(c => c.key)].map(k => (
           <button key={k}
             onClick={() => setClubFilter(k)}
-            style={{ padding:'5px 12px', borderRadius:'var(--r-full)', fontSize:12, fontWeight:600,
-              cursor:'pointer',
-              background: clubFilter === k ? 'var(--rose)' : 'var(--surface)',
-              color: clubFilter === k ? '#fff' : 'var(--text-2)',
-              border: clubFilter === k ? 'none' : '1px solid var(--border)' }}>
+            style={{
+              padding: '5px 14px',
+              borderRadius: 'var(--r-full)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              cursor: 'pointer',
+              background: clubFilter === k ? 'var(--ig-black)' : 'var(--surface)',
+              color: clubFilter === k ? '#fff' : 'var(--ig-muted)',
+              border: clubFilter === k ? 'none' : '1px solid var(--ig-border)',
+              transition: 'all var(--t)',
+            }}>
             {k === 'all' ? 'Все клубы' : k}
           </button>
         ))}
@@ -88,9 +94,9 @@ export function RetentionTab() {
             </div>
 
             {[
-              { label:`Участников 30д: ${r.visitors30d.toLocaleString()}`,  value:r.visitors30d,   max:1500, color:'var(--rose)' },
-              { label:`Retained: ${r.retained.toLocaleString()}`,           value:r.retained,      max:1500, color:'var(--sage)' },
-              { label:`Новые/вернувш.: ${r.newOrReturned.toLocaleString()}`,value:r.newOrReturned, max:1500, color:'var(--gold)' },
+              { label:`Участников 30д: ${r.visitors30d.toLocaleString()}`,  value:r.visitors30d,   max:1500, color:'var(--ig-black)' },
+              { label:`Retained: ${r.retained.toLocaleString()}`,           value:r.retained,      max:1500, color:'var(--ig-success)' },
+              { label:`Новые/вернувш.: ${r.newOrReturned.toLocaleString()}`,value:r.newOrReturned, max:1500, color:'var(--ig-blue)' },
             ].map(bar => (
               <div key={bar.label} style={{ marginBottom:8 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', marginBottom:3 }}>
@@ -113,9 +119,9 @@ export function RetentionTab() {
           ⚠️ Источник: локальные buddy-данные (mock/export) — не из DWH
         </div>
         {[
-          { label:'С buddy (нашли пару или группу)', value:78, color:'var(--sage)' },
-          { label:'Без buddy',                        value:48, color:'var(--rose)' },
-          { label:'Benchmark сети (DWH proxy avg)',   value:Math.round(DWH_RETENTION.reduce((s,r) => s + r.retentionRate, 0) / DWH_RETENTION.length), color:'var(--gold)' },
+          { label:'С buddy (нашли пару или группу)', value:78, color:'var(--ig-success)' },
+          { label:'Без buddy',                        value:48, color:'var(--ig-muted)' },
+          { label:'Benchmark сети (DWH proxy avg)',   value:Math.round(DWH_RETENTION.reduce((s,r) => s + r.retentionRate, 0) / DWH_RETENTION.length), color:'var(--ig-blue)' },
         ].map(b => (
           <div key={b.label} style={{ marginBottom:16 }}>
             <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
@@ -127,8 +133,8 @@ export function RetentionTab() {
             </div>
           </div>
         ))}
-        <div style={{ marginTop:20, padding:'12px 16px', background:'var(--sage-light)',
-          borderRadius:10, fontSize:13, color:'#3A6858', lineHeight:1.6 }}>
+        <div style={{ marginTop: 20, padding: '12px 16px', background: 'var(--ig-blue-pale)',
+          borderRadius: 'var(--r-sm)', fontSize: 13, color: 'var(--ig-blue-dark)', lineHeight: 1.6 }}>
           ✦ Клиентки с buddy-механикой возвращаются значительно чаще.
           Средний retention по сети (DWH proxy): <strong>{Math.round(DWH_RETENTION.reduce((s,r) => s + r.retentionRate, 0) / DWH_RETENTION.length)}%</strong>.
           Buddy-effect даёт прирост ~<strong>+8–10 пп</strong>.

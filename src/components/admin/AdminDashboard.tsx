@@ -31,8 +31,35 @@ export function AdminDashboard() {
       {/* Header */}
       <div className="admin__header">
         <div>
-          <div className="admin__title">Buddy AI — Дашборд</div>
-          <div className="admin__subtitle">Аналитика по механике "Подруга для тренировки"</div>
+          {/* Location logoblock style */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            marginBottom: 6,
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 9,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--ig-muted)',
+            }}>
+              invictus girls
+            </span>
+            <span style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 11,
+              letterSpacing: '0.22em',
+              textTransform: 'lowercase',
+              color: 'var(--ig-blue)',
+              fontWeight: 600,
+            }}>
+              buddy ai
+            </span>
+          </div>
+          <div className="admin__title">Дашборд аналитики</div>
+          <div className="admin__subtitle">Механика "Подруга для тренировки" · DWH + local data</div>
         </div>
         <div className="admin__date">{today}</div>
       </div>
