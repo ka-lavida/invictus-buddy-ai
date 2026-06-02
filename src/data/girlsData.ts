@@ -18,17 +18,18 @@ export interface ClubInfo {
   address:   string;
   dwhId:     string;           // подтверждённый mongo.clubs.id
   dwhName:   string;           // полное имя в DWH
-  // для matching engine (buddyPool использует эти названия)
-  matchName: string;
+  matchName: string;           // для matching engine (buddyPool использует эти названия)
+  lat:       number;           // mapLink.center[1] — GeoJSON [lng, lat]
+  lng:       number;           // mapLink.center[0]
 }
 
 export const GIRLS_CLUBS: ClubInfo[] = [
-  { key: 'Crystal',   label: 'Crystal',   city: 'Алматы',    cityLabel: 'Almaty',    address: 'пр. Абая 160, к.3',              dwhId: '68c14ef824acbd015e2bc852', dwhName: 'Invictus Girls Crystal',   matchName: 'Girls Crystal' },
-  { key: 'Tole bi',   label: 'Tole bi',   city: 'Астана',    cityLabel: 'Astana',    address: 'Толе би 40/1',                   dwhId: '69032e8a20c1f805985d5bbd', dwhName: 'Invictus Girls Tole bi',   matchName: 'Girls Crystal' },
-  { key: 'Orynbor',   label: 'Orynbor',   city: 'Астана',    cityLabel: 'Astana',    address: 'Орынбор 12 оф 25',               dwhId: '6576f7a426f20202bd273ebd', dwhName: 'Invictus Girls Orynbor',   matchName: 'Samal' },
-  { key: 'Kunaeva',   label: 'Kunaeva',   city: 'Астана',    cityLabel: 'Astana',    address: 'Кунаева 12/1',                   dwhId: '63b85152053d7a00ccf5a611', dwhName: 'Invictus Girls Qonayev',   matchName: 'Samal' },
-  { key: 'Sfera',     label: 'Sfera',     city: 'Астана',    cityLabel: 'Astana',    address: 'Керей Жанибек 44/3',             dwhId: '693fe563bda05da33d2bf063', dwhName: 'Invictus Girls Sfera',     matchName: 'Green Mall' },
-  { key: 'Karaganda', label: 'Karaganda', city: 'Караганда', cityLabel: 'Karaganda', address: 'Гоголь 34А, БЦ Grey Plaza',      dwhId: '69a5246364580ebbac2be7cb', dwhName: 'Invictus Girls Karaganda', matchName: 'Gagarin' },
+  { key: 'Crystal',   label: 'Crystal',   city: 'Алматы',    cityLabel: 'Almaty',    address: 'пр. Абая 160, к.3',         dwhId: '68c14ef824acbd015e2bc852', dwhName: 'Invictus Girls Crystal',   matchName: 'Crystal',   lat: 43.2394, lng: 76.9258 },
+  { key: 'Tole bi',   label: 'Tole bi',   city: 'Астана',    cityLabel: 'Astana',    address: 'Толе би 40/1',              dwhId: '69032e8a20c1f805985d5bbd', dwhName: 'Invictus Girls Tole bi',   matchName: 'Tole bi',   lat: 51.1326, lng: 71.4118 },
+  { key: 'Orynbor',   label: 'Orynbor',   city: 'Астана',    cityLabel: 'Astana',    address: 'Орынбор 12 оф 25',          dwhId: '6576f7a426f20202bd273ebd', dwhName: 'Invictus Girls Orynbor',   matchName: 'Orynbor',   lat: 51.1785, lng: 71.4356 },
+  { key: 'Kunaeva',   label: 'Kunaeva',   city: 'Астана',    cityLabel: 'Astana',    address: 'Кунаева 12/1',              dwhId: '63b85152053d7a00ccf5a611', dwhName: 'Invictus Girls Qonayev',   matchName: 'Kunaeva',   lat: 51.1828, lng: 71.4461 },
+  { key: 'Sfera',     label: 'Sfera',     city: 'Астана',    cityLabel: 'Astana',    address: 'Керей Жанибек 44/3',        dwhId: '693fe563bda05da33d2bf063', dwhName: 'Invictus Girls Sfera',     matchName: 'Sfera',     lat: 51.1703, lng: 71.4319 },
+  { key: 'Karaganda', label: 'Karaganda', city: 'Караганда', cityLabel: 'Karaganda', address: 'Гоголь 34А, БЦ Grey Plaza', dwhId: '69a5246364580ebbac2be7cb', dwhName: 'Invictus Girls Karaganda', matchName: 'Karaganda', lat: 49.8020, lng: 73.0878 },
 ];
 
 export function getClubsByCity(city: GirlsCity): ClubInfo[] {
@@ -39,20 +40,35 @@ export function getClubByKey(key: string): ClubInfo | undefined {
   return GIRLS_CLUBS.find(c => c.key === key);
 }
 
+// ─── Programs available per club ──────────────────────────────────────────────
+// Source: DWH mongo.events JOIN mongo.grouptrainings, last 90 days, ≥10 events.
+// Keys match GIRLS_PROGRAMS[].key. 'unknown' is always appended in the wizard.
+// Barre exists only at Kunaeva (as "Barre Booty" / "Barre arms+core").
+export const CLUB_PROGRAMS: Record<string, string[]> = {
+  Crystal:   ['bootcamp', 'glute-lab', 'stretching', 'pilates', 'yoga', 'strong', 'brazilian-butt', 'bodysculpt'],
+  'Tole bi': ['bootcamp', 'glute-lab', 'stretching', 'pilates', 'yoga', 'strong', 'brazilian-butt'],
+  Orynbor:   ['bootcamp', 'stretching', 'pilates', 'yoga', 'strong'],
+  Kunaeva:   ['bootcamp', 'barre', 'stretching', 'pilates', 'yoga', 'strong', 'brazilian-butt'],
+  Sfera:     ['bootcamp', 'glute-lab', 'stretching', 'pilates', 'yoga', 'strong'],
+  Karaganda: ['bootcamp', 'stretching', 'pilates', 'yoga', 'strong', 'bodysculpt'],
+};
+
 // ─── Programs ─────────────────────────────────────────────────────────────────
 // Верифицированы через MCP: SELECT DISTINCT gt.name FROM mongo.events e
 // JOIN mongo.grouptrainings gt ON gt.id = e.group_training
 // WHERE c.type = 'Girls' AND e.time_start >= NOW() - INTERVAL '30 days'
 
 export interface ProgramInfo {
-  key:         string;  // используется как ключ / для matching map
-  name:        string;  // отображаемое имя
+  key:         string;
+  name:        string;
   description: string;
   level:       'Новичок' | 'Средний' | 'Уверенный' | '';
-  goal:        string;  // для матчинга: соответствует Goal типу
+  dwhLevel:    1 | 2;    // from DWH: 1=beginner, 2=intermediate+
+  goals:       string[]; // Goal values this program serves (smart filtering)
+  goal:        string;   // primary goal for buddy matching
   calories:    number;
   tags:        string[];
-  matchProgram: string; // ключ для buddyPool matching
+  matchProgram: string;
 }
 
 export const GIRLS_PROGRAMS: ProgramInfo[] = [
@@ -60,9 +76,11 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     key: 'barre',
     name: 'Barre',
     description: 'Грация балета + сила пилатеса. Тонус без ударной нагрузки.',
-    level: 'Средний',
+    level: 'Новичок',
+    dwhLevel: 1,
+    goals: ['Тонус', 'Ягодицы'],
     goal: 'Тонус',
-    calories: 350,
+    calories: 500,
     tags: ['#barre', '#grace'],
     matchProgram: 'Barre',
   },
@@ -71,6 +89,8 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'INVICTUS GLUTE LAB',
     description: 'Работа на ягодицы и бёдра с весом и без — результат виден быстро.',
     level: 'Средний',
+    dwhLevel: 2,
+    goals: ['Ягодицы', 'Тонус'],
     goal: 'Ягодицы',
     calories: 400,
     tags: ['#glutes', '#strength'],
@@ -81,6 +101,8 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'INVICTUS BOOTCAMP',
     description: 'Интенсивная кардио-силовая тренировка. Сжигаем, тонизируем, работаем.',
     level: 'Средний',
+    dwhLevel: 2,
+    goals: ['Похудение', 'Тонус'],
     goal: 'Похудение',
     calories: 600,
     tags: ['#cardio', '#fullbody'],
@@ -91,8 +113,10 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'Stretching',
     description: 'Растяжка, гибкость и расслабление. Мягкий старт или финал дня.',
     level: 'Новичок',
+    dwhLevel: 1,
+    goals: ['Растяжка', 'Вернуться в режим', 'Просто начать'],
     goal: 'Растяжка',
-    calories: 150,
+    calories: 250,
     tags: ['#flex', '#relax'],
     matchProgram: 'Stretching',
   },
@@ -101,6 +125,8 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'Pilates mat',
     description: 'Контроль тела, кор, осанка. Тонус без перегрузки суставов.',
     level: 'Новичок',
+    dwhLevel: 1,
+    goals: ['Тонус', 'Растяжка', 'Вернуться в режим', 'Просто начать'],
     goal: 'Тонус',
     calories: 250,
     tags: ['#core', '#posture'],
@@ -111,8 +137,10 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'Yoga',
     description: 'Баланс тела и ума, дыхание, гибкость. Отличный способ начать.',
     level: 'Новичок',
+    dwhLevel: 1,
+    goals: ['Растяжка', 'Вернуться в режим', 'Просто начать'],
     goal: 'Растяжка',
-    calories: 200,
+    calories: 250,
     tags: ['#mindful', '#balance'],
     matchProgram: 'Yoga',
   },
@@ -121,6 +149,8 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'Brazillian Butt',
     description: 'Поднимаем и округляем ягодицы — программа с фокусом на форму.',
     level: 'Средний',
+    dwhLevel: 2,
+    goals: ['Ягодицы'],
     goal: 'Ягодицы',
     calories: 450,
     tags: ['#booty', '#shape'],
@@ -131,6 +161,8 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'BodySculpt',
     description: 'Скульптурирование: рельеф и тонус без изматывающего кардио.',
     level: 'Средний',
+    dwhLevel: 2,
+    goals: ['Тонус', 'Вернуться в режим'],
     goal: 'Тонус',
     calories: 500,
     tags: ['#sculpt', '#tone'],
@@ -141,8 +173,10 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'INVICTUS STRONG',
     description: 'Силовая функциональная тренировка для уверенных и мотивированных.',
     level: 'Уверенный',
+    dwhLevel: 2,
+    goals: ['Тонус', 'Похудение'],
     goal: 'Тонус',
-    calories: 550,
+    calories: 600,
     tags: ['#strength', '#power'],
     matchProgram: 'BootCamp',
   },
@@ -151,6 +185,8 @@ export const GIRLS_PROGRAMS: ProgramInfo[] = [
     name: 'Не знаю, подберите мне',
     description: 'Не уверена? Система подберёт программу под твою цель.',
     level: '',
+    dwhLevel: 1,
+    goals: [],
     goal: '',
     calories: 0,
     tags: [],

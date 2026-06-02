@@ -1584,6 +1584,20 @@ img { display: block; max-width: 100%; }
   margin-top: -2px;
 }
 
+.wizard-geo-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--ig-blue-soft);
+  font-family: var(--font-mono);
+  letter-spacing: 0.03em;
+}
+
+.wizard-geo-hint--off {
+  color: var(--ig-muted);
+}
+
 .wizard-chips {
   display: flex;
   flex-wrap: wrap;

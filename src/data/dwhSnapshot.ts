@@ -134,7 +134,7 @@ export const DWH_CLUB_STATS: DwhClubStats[] = [
   },
   {
     clubId: '69a5246364580ebbac2be7cb',
-    key: 'Karaganda', label: 'Karaganda', city: 'Карагандa', cityLabel: 'Karaganda',
+    key: 'Karaganda', label: 'Karaganda', city: 'Караганда', cityLabel: 'Karaganda',
     dwhName: 'Invictus Girls Karagandy',
     activeSubscribers: 529,
     totalVisits30d: 2367, totalVisits7d: 29, totalVisits90d: 41,

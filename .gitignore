@@ -28,3 +28,6 @@ server/.env
 
 # Claude Code local settings (machine-specific paths)
 .claude/settings.local.json
+
+# Dev artifacts
+vite-out.txt
