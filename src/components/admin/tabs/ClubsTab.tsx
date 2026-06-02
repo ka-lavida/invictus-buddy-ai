@@ -3,6 +3,12 @@ import { ChevronRight, ChevronLeft, Database } from 'lucide-react';
 import { DWH_CLUB_STATS, DWH_CLUB_PROGRAMS, DWH_PEAK_HOURS, DWH_RETENTION, type DwhClubStats } from '../../../data/dwhSnapshot';
 import { CAPACITY_STATS } from '../../../data/girlsData';
 
+// Format numbers safely for display font (avoids Russian locale space thousands separator)
+function fmtNum(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
+  return String(n);
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function Pct({ value, goodAbove, badBelow }: { value: number; goodAbove?: number; badBelow?: number }) {
   const isGood = goodAbove !== undefined && value >= goodAbove;
@@ -92,9 +98,9 @@ function ClubDetail({ club, onBack }: { club: DwhClubStats; onBack: () => void }
       {/* A. Executive Summary */}
       <div className="metrics-grid" style={{ marginBottom:24 }}>
         {[
-          { label:'Активных абонементов', value:club.activeSubscribers.toLocaleString(), color:'var(--ig-black)', note:'is_active subscribers' },
-          { label:'Уник. групповых участников', value:club.uniqueGroupVisitors.toLocaleString(), color:'var(--ig-blue)', note:'из событий за 30д' },
-          { label:'Посещений всего (30д)', value:club.totalVisits30d.toLocaleString(), color:'var(--ig-black)', note:'mongo.visits' },
+          { label:'Активных абонементов', value:fmtNum(club.activeSubscribers), color:'var(--ig-black)', note:'is_active subscribers' },
+          { label:'Уник. групповых участников', value:fmtNum(club.uniqueGroupVisitors), color:'var(--ig-blue)', note:'из событий за 30д' },
+          { label:'Посещений всего (30д)', value:fmtNum(club.totalVisits30d), color:'var(--ig-black)', note:'mongo.visits' },
           { label:'Fill rate занятий', value:`${club.fillRate}%`, color: club.fillRate >= 60 ? 'var(--ig-success)' : club.fillRate >= 40 ? 'var(--ig-warning)' : 'var(--ig-danger)', note:'записи / вместимость' },
           { label:'Retention 30d (proxy)', value:`${club.retentionRate30d}%`, color: club.retentionRate30d >= 70 ? 'var(--ig-success)' : 'var(--ig-warning)', note:'повторные из прошлого периода' },
           { label:'Новые / вернувшиеся', value:`${club.churnProxy30d}%`, color: club.churnProxy30d <= 30 ? 'var(--ig-success)' : 'var(--ig-danger)', note:'не посещали в пред. период' },
@@ -268,7 +274,7 @@ function ClubCard({ club, onClick }: { club: DwhClubStats; onClick: () => void }
         ].map(m => (
           <div key={m.label} style={{ background: 'var(--ig-fog)', borderRadius: 'var(--r-sm)', padding: '8px 10px' }}>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--ig-black)' }}>
-              {m.value.toLocaleString()}
+              {fmtNum(m.value)}
             </div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ig-muted)', marginTop: 2, letterSpacing: '0.06em' }}>
               {m.label}

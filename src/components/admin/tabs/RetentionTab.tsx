@@ -59,15 +59,15 @@ export function RetentionTab() {
       {clubFilter === 'all' && (
         <div className="metrics-grid">
           {[
-            { label:'Участников (30д)', value:total30d.toLocaleString(), color:'var(--rose-dark)', note:'уникальных в событиях' },
-            { label:'Были в пред. периоде', value:totalRetained.toLocaleString(), color:'var(--sage)', note:'retained посетители' },
-            { label:'Новые / вернувшиеся', value:totalNew.toLocaleString(), color:'var(--gold)', note:'не были в прошлом периоде' },
-            { label:'Retention rate (сеть)', value:`${netRetRate}%`, color: netRetRate >= 70 ? 'var(--sage)' : 'var(--gold)', note:'% повторных от всех' },
+            { label:'Участников (30д)', value: total30d >= 1000 ? `${(total30d/1000).toFixed(1)}k` : total30d, color:'var(--ig-black)', note:'уникальных в событиях' },
+            { label:'Были в пред. периоде', value: totalRetained >= 1000 ? `${(totalRetained/1000).toFixed(1)}k` : totalRetained, color:'var(--ig-success)', note:'retained посетители' },
+            { label:'Новые / вернувшиеся', value: totalNew >= 1000 ? `${(totalNew/1000).toFixed(1)}k` : totalNew, color:'var(--ig-blue)', note:'не были в прошлом периоде' },
+            { label:'Retention rate (сеть)', value:`${netRetRate}%`, color: netRetRate >= 70 ? 'var(--ig-success)' : 'var(--ig-warning)', note:'% повторных от всех' },
           ].map(m => (
             <div key={m.label} className="metric-card">
-              <div style={{ fontSize:24, fontWeight:800, color:m.color }}>{m.value}</div>
-              <div style={{ fontSize:12, fontWeight:700, color:'var(--text)', marginTop:4 }}>{m.label}</div>
-              <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:4 }}>{m.note}</div>
+              <div style={{ fontFamily:'var(--font-display)', fontSize:26, fontWeight:700, color:m.color, marginBottom:2 }}>{m.value}</div>
+              <div className="metric-card__label">{m.label}</div>
+              <div style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--ig-muted)', marginTop:4, letterSpacing:'0.04em' }}>{m.note}</div>
             </div>
           ))}
         </div>

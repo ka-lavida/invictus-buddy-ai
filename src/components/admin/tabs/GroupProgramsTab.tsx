@@ -141,8 +141,10 @@ export function GroupProgramsTab() {
                       {p.program}
                     </td>
                     <td style={{ padding:'10px 12px', color:'var(--text-2)' }}>{p.totalEvents}</td>
-                    <td style={{ padding:'10px 12px', fontFamily: 'var(--font-display)', fontWeight:700, color:'var(--ig-black)' }}>
-                      {p.bookings.toLocaleString()}
+                    <td style={{ padding:'10px 12px', fontWeight:700, color:'var(--ig-black)' }}>
+                      {p.bookings >= 1000
+                        ? `${(p.bookings / 1000).toFixed(1)}k`
+                        : p.bookings}
                     </td>
                     <td style={{ padding:'10px 12px' }}>
                       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -169,11 +171,11 @@ export function GroupProgramsTab() {
                           display:'flex', gap:24, flexWrap:'wrap', fontSize:12 }}>
                           <div>
                             <div style={{ color:'var(--text-muted)', marginBottom:2 }}>Вместимость</div>
-                            <strong>{p.capacity.toLocaleString()}</strong>
+                            <strong>{p.capacity >= 1000 ? `${(p.capacity/1000).toFixed(1)}k` : p.capacity}</strong>
                           </div>
                           <div>
-                            <div style={{ color:'var(--text-muted)', marginBottom:2 }}>Свободных мест всего</div>
-                            <strong>{(p.capacity - p.bookings).toLocaleString()}</strong>
+                            <div style={{ color:'var(--text-muted)', marginBottom:2 }}>Свободных мест</div>
+                            <strong>{(p.capacity - p.bookings) >= 1000 ? `${((p.capacity - p.bookings)/1000).toFixed(1)}k` : (p.capacity - p.bookings)}</strong>
                           </div>
                           <div style={{ flex:1, minWidth:200 }}>
                             <div style={{ color:'var(--text-muted)', marginBottom:4 }}>AI-рекомендация</div>
