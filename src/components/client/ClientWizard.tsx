@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { ChevronLeft, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
 import {
   GIRLS_CITIES, GIRLS_CLUBS, GIRLS_PROGRAMS,
@@ -13,9 +13,17 @@ import {
   type AgeRange, type MemberStatus,
 } from '../../data/mockData';
 
+// Answers carried in from another flow (e.g. the group-program finder), so we
+// don't re-ask them. Field names match the wizard's option values.
+export interface WizardPrefill {
+  city?: string; clubKey?: string; ageRange?: string; format?: string;
+  level?: string; goal?: string; memberStatus?: string; programKey?: string;
+}
+
 interface ClientWizardProps {
   onSubmit: (data: FormData) => void;
   onBack:   () => void;
+  prefill?: WizardPrefill;
 }
 
 const TOTAL_STEPS = 8;
@@ -209,8 +217,24 @@ function ProgramStep({
 }
 
 // ─── ClientWizard ────────────────────────────────────────────────────────────
-export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
-  const [step, setStep] = useState(0);
+export function ClientWizard({ onSubmit, onBack, prefill }: ClientWizardProps) {
+  // Steps already answered by a prefill are skipped (program step 7 never is).
+  const prefilledSteps = useMemo(() => {
+    const s = new Set<number>();
+    if (prefill?.city)         s.add(0);
+    if (prefill?.clubKey)      s.add(1);
+    if (prefill?.ageRange)     s.add(2);
+    if (prefill?.format)       s.add(3);
+    if (prefill?.level)        s.add(4);
+    if (prefill?.memberStatus) s.add(5);
+    if (prefill?.goal)         s.add(6);
+    return s;
+  }, []);
+  const firstOpenStep = () => { for (let i = 0; i < TOTAL_STEPS; i++) if (!prefilledSteps.has(i)) return i; return TOTAL_STEPS - 1; };
+  const nextOpenStep  = (from: number) => { let n = from + 1; while (n < TOTAL_STEPS - 1 && prefilledSteps.has(n)) n++; return n; };
+  const prevOpenStep  = (from: number) => { let n = from - 1; while (n >= 0 && prefilledSteps.has(n)) n--; return n; };
+
+  const [step, setStep] = useState(firstOpenStep);
   const geo = useGeolocation();
 
   const userLat = geo.status === 'granted' ? geo.lat : null;
@@ -221,15 +245,15 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
     return dist ? `${c.address} · ${dist}` : c.address;
   };
 
-  // Selections per step
-  const [city,         setCity]         = useState<GirlsCity | ''>('');
-  const [clubKey,      setClubKey]      = useState('');
-  const [ageRange,     setAgeRange]     = useState<AgeRange | ''>('');
-  const [programKey,   setProgramKey]   = useState('');
-  const [format,       setFormat]       = useState<Format | ''>('');
-  const [level,        setLevel]        = useState<Level | ''>('');
-  const [goal,         setGoal]         = useState<Goal | ''>('');
-  const [memberStatus, setMemberStatus] = useState<MemberStatus | ''>('');
+  // Selections per step (seeded from any prefill carried in from another flow)
+  const [city,         setCity]         = useState<GirlsCity | ''>((prefill?.city as GirlsCity) ?? '');
+  const [clubKey,      setClubKey]      = useState(prefill?.clubKey ?? '');
+  const [ageRange,     setAgeRange]     = useState<AgeRange | ''>((prefill?.ageRange as AgeRange) ?? '');
+  const [programKey,   setProgramKey]   = useState(prefill?.programKey ?? '');
+  const [format,       setFormat]       = useState<Format | ''>((prefill?.format as Format) ?? '');
+  const [level,        setLevel]        = useState<Level | ''>((prefill?.level as Level) ?? '');
+  const [goal,         setGoal]         = useState<Goal | ''>((prefill?.goal as Goal) ?? '');
+  const [memberStatus, setMemberStatus] = useState<MemberStatus | ''>((prefill?.memberStatus as MemberStatus) ?? '');
 
   const clubsForCity = city ? getClubsByCity(city) : [];
 
@@ -252,9 +276,24 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
     }
   };
 
+  // Auto-advance to the next question shortly after a selection
+  // (board spec: "авто переход между вопросами"). Runs the step's reset first.
+  const advanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (advanceRef.current) clearTimeout(advanceRef.current); }, []);
+
+  const pickAdvance = (apply: () => void, fromStep: number) => {
+    apply();
+    if (fromStep === 0) { setClubKey(''); setProgramKey(''); } // city changed
+    if (fromStep === 1) setProgramKey('');                      // club changed
+    if (advanceRef.current) clearTimeout(advanceRef.current);
+    advanceRef.current = setTimeout(() => setStep(nextOpenStep(fromStep)), 320);
+  };
+
   const handleBack = () => {
-    if (step === 0) onBack();
-    else setStep(s => s - 1);
+    if (advanceRef.current) clearTimeout(advanceRef.current);
+    const prev = prevOpenStep(step);
+    if (prev < 0) onBack();
+    else setStep(prev);
   };
 
   const handleSubmit = () => {
@@ -285,7 +324,7 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
           <div className="wizard-step__hint">Где тебе удобнее тренироваться?</div>
           <div className="wizard-chips">
             {GIRLS_CITIES.map(c => (
-              <OptionChip key={c} label={c} selected={city === c} onClick={() => setCity(c)} />
+              <OptionChip key={c} label={c} selected={city === c} onClick={() => pickAdvance(() => setCity(c), 0)} />
             ))}
           </div>
         </div>
@@ -314,7 +353,7 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
                 label={c.label}
                 sublabel={clubSublabel(c)}
                 selected={clubKey === c.key}
-                onClick={() => setClubKey(c.key)}
+                onClick={() => pickAdvance(() => setClubKey(c.key), 1)}
               />
             ))}
           </div>
@@ -327,7 +366,7 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
           <div className="wizard-step__hint">Покажем только тех, кто в похожей категории</div>
           <div className="wizard-chips wizard-chips--grid">
             {AGE_RANGES.map(a => (
-              <OptionChip key={a} label={a + ' лет'} selected={ageRange === a} onClick={() => setAgeRange(a)} />
+              <OptionChip key={a} label={a + ' лет'} selected={ageRange === a} onClick={() => pickAdvance(() => setAgeRange(a), 2)} />
             ))}
           </div>
         </div>
@@ -339,7 +378,7 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
           <div className="wizard-step__hint">Выбери формат, который тебе подходит</div>
           <div className="wizard-chips">
             {FORMATS.map(f => (
-              <OptionChip key={f} label={f} selected={format === f} onClick={() => setFormat(f)} />
+              <OptionChip key={f} label={f} selected={format === f} onClick={() => pickAdvance(() => setFormat(f), 3)} />
             ))}
           </div>
         </div>
@@ -351,7 +390,7 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
           <div className="wizard-step__hint">Честно — мы подберём тех, кто на одном уровне</div>
           <div className="wizard-chips">
             {LEVELS.map(l => (
-              <OptionChip key={l} label={l} selected={level === l} onClick={() => setLevel(l)} />
+              <OptionChip key={l} label={l} selected={level === l} onClick={() => pickAdvance(() => setLevel(l), 4)} />
             ))}
           </div>
         </div>
@@ -363,7 +402,7 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
           <div className="wizard-step__hint">Подберём того, кто в похожей ситуации</div>
           <div className="wizard-chips">
             {MEMBER_STATUSES.map(s => (
-              <OptionChip key={s} label={s} selected={memberStatus === s} onClick={() => setMemberStatus(s)} />
+              <OptionChip key={s} label={s} selected={memberStatus === s} onClick={() => pickAdvance(() => setMemberStatus(s), 5)} />
             ))}
           </div>
         </div>
@@ -375,7 +414,7 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
           <div className="wizard-step__hint">Твоя цель — наш главный фильтр</div>
           <div className="wizard-chips wizard-chips--grid">
             {GOALS.map(g => (
-              <OptionChip key={g} label={g} selected={goal === g} onClick={() => setGoal(g)} />
+              <OptionChip key={g} label={g} selected={goal === g} onClick={() => pickAdvance(() => setGoal(g), 6)} />
             ))}
           </div>
         </div>
@@ -429,13 +468,17 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
             <span>Контакты не раскрываются без согласия</span>
           </div>
 
-          <button
-            className={`btn btn--primary btn--lg wizard-next-btn ${!canGoNext ? 'wizard-next-btn--disabled' : ''}`}
-            onClick={handleNext}
-            disabled={!canGoNext}
-          >
-            {isLastStep ? 'Найти подругу' : 'Дальше'}
-          </button>
+          {isLastStep ? (
+            <button
+              className={`btn btn--primary btn--lg wizard-next-btn ${!canGoNext ? 'wizard-next-btn--disabled' : ''}`}
+              onClick={handleNext}
+              disabled={!canGoNext}
+            >
+              Найти подругу
+            </button>
+          ) : (
+            <div className="wizard-autohint">Выбери вариант — перейдём дальше автоматически</div>
+          )}
         </div>
       </div>
     </section>

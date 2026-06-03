@@ -2,10 +2,11 @@ import { Lock, UserCheck, Star } from 'lucide-react';
 
 interface HeroBlockProps {
   onFindBuddy:   () => void;
+  onFindClass:   () => void;
   onHowItWorks:  () => void;
 }
 
-export function HeroBlock({ onFindBuddy, onHowItWorks }: HeroBlockProps) {
+export function HeroBlock({ onFindBuddy, onFindClass, onHowItWorks }: HeroBlockProps) {
   return (
     <section className="hero">
       <div className="hero__inner">
@@ -34,18 +35,19 @@ export function HeroBlock({ onFindBuddy, onHowItWorks }: HeroBlockProps) {
         {/* Sub */}
         <p className="hero__subtitle">
           Выбери город, клуб, программу и удобное время —
-          мы подберём девушку или мини-группу с похожей целью.
+          мы подберём подругу или мини-группу с похожей целью.
         </p>
 
-        {/* CTA */}
+        {/* CTA — two primary actions (board: find a buddy / pick a group program) */}
         <div className="hero__cta-row">
           <button className="btn btn--white btn--lg" onClick={onFindBuddy}>
             Найти подругу
           </button>
-          <button className="btn btn--white-outline btn--lg" onClick={onHowItWorks}>
-            Как это работает
+          <button className="btn btn--white-outline btn--lg" onClick={onFindClass}>
+            Подобрать программу
           </button>
         </div>
+        <button className="hero__link" onClick={onHowItWorks}>Как это работает →</button>
 
         {/* Stats */}
         <div className="hero__stats">

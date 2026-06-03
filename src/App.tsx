@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { ModeToggle }      from './components/shared/ModeToggle';
 import { DwhBadge }        from './components/shared/DwhBadge';
 import { HeroBlock }       from './components/client/HeroBlock';
-import { ClientWizard }    from './components/client/ClientWizard';
+import { ClientWizard, type WizardPrefill } from './components/client/ClientWizard';
+import { GroupProgramFinder } from './components/client/GroupProgramFinder';
 import { HowItWorks }      from './components/client/HowItWorks';
 import { BuddyMatches }    from './components/client/BuddyMatches';
 import { AdminDashboard }  from './components/admin/AdminDashboard';
@@ -10,13 +11,14 @@ import { defaultFormData, buddyPool, type FormData } from './data/mockData';
 import { findBuddyMatches, type MatchResult } from './utils/matching';
 
 type Mode  = 'client' | 'admin';
-type Stage = 'hero' | 'wizard' | 'how-it-works' | 'matches';
+type Stage = 'hero' | 'wizard' | 'group-program' | 'how-it-works' | 'matches';
 
 export default function App() {
   const [mode,      setMode]      = useState<Mode>('client');
   const [stage,     setStage]     = useState<Stage>('hero');
   const [formData,  setFormData]  = useState<FormData>(defaultFormData);
   const [matches,   setMatches]   = useState<MatchResult[]>([]);
+  const [prefill,   setPrefill]   = useState<WizardPrefill | null>(null);
   const [toast,     setToast]     = useState('');
   const [toastShow, setToastShow] = useState(false);
 
@@ -50,6 +52,7 @@ export default function App() {
   };
 
   const handleReset = () => {
+    setPrefill(null);
     setStage('wizard');
     setFormData(defaultFormData);
     setMatches([]);
@@ -58,6 +61,13 @@ export default function App() {
 
   const goHero = () => {
     setStage('hero');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Enter the buddy wizard, optionally carrying prefilled answers (group-program → buddy).
+  const goWizard = (p: WizardPrefill | null = null) => {
+    setPrefill(p);
+    setStage('wizard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -87,7 +97,8 @@ export default function App() {
           <>
             {stage === 'hero' && (
               <HeroBlock
-                onFindBuddy={() => setStage('wizard')}
+                onFindBuddy={() => goWizard()}
+                onFindClass={() => setStage('group-program')}
                 onHowItWorks={() => setStage('how-it-works')}
               />
             )}
@@ -95,11 +106,19 @@ export default function App() {
               <ClientWizard
                 onSubmit={handleWizardSubmit}
                 onBack={goHero}
+                prefill={prefill ?? undefined}
+              />
+            )}
+            {stage === 'group-program' && (
+              <GroupProgramFinder
+                onFindBuddy={goWizard}
+                onBack={goHero}
+                onAction={showToast}
               />
             )}
             {stage === 'how-it-works' && (
               <HowItWorks
-                onFindBuddy={() => setStage('wizard')}
+                onFindBuddy={() => goWizard()}
                 onBack={goHero}
               />
             )}

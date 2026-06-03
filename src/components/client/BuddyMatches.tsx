@@ -6,6 +6,7 @@ import { api } from '../../utils/api';
 import { suggestIcebreakers, explainMatch, suggestGroupClass, recommendPrograms } from '../../utils/ai';
 import { getEligiblePrograms } from '../../data/girlsData';
 import { InviteFriend } from './InviteFriend';
+import { SessionFeedback } from './SessionFeedback';
 
 // ─── Compact label for member status ────────────────────────────────────────
 const STATUS_SHORT: Record<MemberStatus, string> = {
@@ -133,14 +134,15 @@ function scoreColor(score: number): string {
 // ─── Single Match Card ────────────────────────────────────────────────────────
 
 interface MatchCardProps {
-  result:   MatchResult;
-  index:    number;
-  isBest:   boolean;
-  user:     FormData;
-  onAction: (msg: string) => void;
+  result:     MatchResult;
+  index:      number;
+  isBest:     boolean;
+  user:       FormData;
+  onAction:   (msg: string) => void;
+  onFeedback: () => void;
 }
 
-function MatchCard({ result, index, isBest, user, onAction }: MatchCardProps) {
+function MatchCard({ result, index, isBest, user, onAction, onFeedback }: MatchCardProps) {
   const { request: r, score, reason } = result;
 
   const [aiReason, setAiReason]   = useState(reason);
@@ -330,6 +332,13 @@ function MatchCard({ result, index, isBest, user, onAction }: MatchCardProps) {
           </div>
         )}
 
+        {/* Post-session feedback (ОС о занятии) — opens the 4-question survey */}
+        {booked && (
+          <button className="match-feedback-link" onClick={onFeedback}>
+            <Sparkles size={12} strokeWidth={2} /> Как прошло занятие? Оставить отзыв
+          </button>
+        )}
+
         {/* Icebreaker panel — AI-suggested first messages */}
         {showIce && (
           <div className="icebreakers">
@@ -364,9 +373,18 @@ interface BuddyMatchesProps {
 
 export function BuddyMatches({ matches, formData, onAction, onReset }: BuddyMatchesProps) {
   const hasResults = matches.length > 0;
+  const [feedbackBuddy, setFeedbackBuddy] = useState<BuddyRequest | null>(null);
 
   return (
     <section className="matches-section">
+      {feedbackBuddy && (
+        <SessionFeedback
+          buddy={feedbackBuddy}
+          onClose={() => setFeedbackBuddy(null)}
+          onRebook={() => onAction('Записали вас снова на следующую неделю — так и формируется привычка 💪')}
+          onInvite={() => onAction('Поделись приглашением ниже — обе получите бонус.')}
+        />
+      )}
       <div className="matches-inner">
       <div className="matches-header">
         <div className="matches-title">
@@ -395,6 +413,7 @@ export function BuddyMatches({ matches, formData, onAction, onReset }: BuddyMatc
                 isBest={i === 0}
                 user={formData}
                 onAction={onAction}
+                onFeedback={() => setFeedbackBuddy(m.request)}
               />
             ))}
           </div>
