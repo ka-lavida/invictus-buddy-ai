@@ -107,7 +107,7 @@ function ClubDetail({ club, onBack }: { club: DwhClubStats; onBack: () => void }
         ].map(m => (
           <div key={m.label} className="metric-card">
             <div className="metric-card__label">{m.label}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: m.color, marginBottom: 2 }}>{m.value}</div>
+            <div style={{ fontFamily: 'var(--font-numeric)', fontSize: 26, fontWeight: 700, color: m.color, marginBottom: 2, letterSpacing: '-0.02em' }}>{m.value}</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ig-muted)', letterSpacing: '0.04em' }}>{m.note}</div>
           </div>
         ))}
@@ -273,7 +273,7 @@ function ClubCard({ club, onClick }: { club: DwhClubStats; onClick: () => void }
           { label: 'Участн. групп.', value: club.uniqueGroupVisitors },
         ].map(m => (
           <div key={m.label} style={{ background: 'var(--ig-fog)', borderRadius: 'var(--r-sm)', padding: '8px 10px' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--ig-black)' }}>
+            <div style={{ fontFamily: 'var(--font-numeric)', fontSize: 18, fontWeight: 700, color: 'var(--ig-black)', letterSpacing: '-0.02em' }}>
               {fmtNum(m.value)}
             </div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ig-muted)', marginTop: 2, letterSpacing: '0.06em' }}>

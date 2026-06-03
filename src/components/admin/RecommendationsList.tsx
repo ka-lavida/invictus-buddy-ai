@@ -1,21 +1,25 @@
-import { RECOMMENDATIONS } from '../../../data/girlsData';
+import { RECOMMENDATIONS } from '../../data/girlsData';
 
 const PRIORITY_STYLE: Record<string, { bg: string; color: string; label: string }> = {
-  high:   { bg: 'var(--coral-light)',    color: 'var(--coral)',    label: 'Высокий' },
-  medium: { bg: 'var(--gold-light)',     color: '#8B6930',         label: 'Средний' },
-  low:    { bg: 'var(--sage-light)',     color: 'var(--sage)',     label: 'Низкий'  },
+  high:   { bg: 'var(--coral-light)', color: 'var(--coral)', label: 'Высокий' },
+  medium: { bg: 'var(--gold-light)',  color: '#8B6930',      label: 'Средний' },
+  low:    { bg: 'var(--sage-light)',  color: 'var(--sage)',  label: 'Низкий'  },
 };
 
-export function RecommendationsTab() {
+// Shared recommendation list, filtered by analytics domain.
+// Rendered inside both the Buddy and Group analytics tabs.
+export function RecommendationsList({ category }: { category: 'buddy' | 'group' }) {
+  const recs = RECOMMENDATIONS.filter(r => r.category === category);
+  if (!recs.length) return null;
+
   const grouped = {
-    high:   RECOMMENDATIONS.filter(r => r.priority === 'high'),
-    medium: RECOMMENDATIONS.filter(r => r.priority === 'medium'),
-    low:    RECOMMENDATIONS.filter(r => r.priority === 'low'),
+    high:   recs.filter(r => r.priority === 'high'),
+    medium: recs.filter(r => r.priority === 'medium'),
+    low:    recs.filter(r => r.priority === 'low'),
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       {(['high', 'medium', 'low'] as const).map(priority => {
         const items = grouped[priority];
         if (!items.length) return null;
@@ -23,7 +27,7 @@ export function RecommendationsTab() {
 
         return (
           <div key={priority}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <span style={{
                 padding: '3px 12px', borderRadius: 99, fontSize: 12, fontWeight: 700,
                 background: style.bg, color: style.color,

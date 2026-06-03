@@ -146,6 +146,19 @@ export const adminMetrics: AdminMetrics = {
   totalRequests: 247, matchesFound: 189, bookedTogether: 134, attended: 98, conversionRate: 73.1,
 };
 
+// ─── Pair retention (Tier 2 — "come back together") ──────────────────────────
+// Tracks whether matched pairs stick together. Local buddy data (mock/export),
+// clearly labelled as such in the admin UI — not from DWH.
+export const PAIR_RETENTION = {
+  matched:             189,  // взаимных матчей
+  trainedTogether:     134,  // сходили вместе ≥1 раз
+  together30d:          92,  // продолжают ходить парой через 30 дней
+  repeatJointBookings:  71,  // записались вдвоём ещё раз
+  reactivated:          18,  // вернулись после авто-напоминания
+  renewalPair:          68,  // % продления абонемента у клиенток в паре
+  renewalSolo:          41,  // % продления у клиенток без пары
+} as const;
+
 // ─── Admin: Program Popularity ────────────────────────────────────────────────
 
 export interface ProgramStat { program: string; requests: number; matches: number; attended: number; }

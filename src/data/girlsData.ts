@@ -40,6 +40,17 @@ export function getClubByKey(key: string): ClubInfo | undefined {
   return GIRLS_CLUBS.find(c => c.key === key);
 }
 
+// Real programs available to a user given their club + level gate (excludes the
+// 'unknown' card). Hard constraints — never bypassed by AI. Used by the wizard
+// program step and the matches empty state.
+export function getEligiblePrograms(clubKey: string, level: string): ProgramInfo[] {
+  return GIRLS_PROGRAMS.filter(p =>
+    p.key !== 'unknown' &&
+    (clubKey ? (CLUB_PROGRAMS[clubKey] ?? []).includes(p.key) : true) &&
+    (level !== 'Новичок' || p.dwhLevel === 1),
+  );
+}
+
 // ─── Programs available per club ──────────────────────────────────────────────
 // Source: DWH mongo.events JOIN mongo.grouptrainings, last 90 days, ≥10 events.
 // Keys match GIRLS_PROGRAMS[].key. 'unknown' is always appended in the wizard.
@@ -284,6 +295,7 @@ export const CAPACITY_STATS: CapacityStats[] = [
 export interface Recommendation {
   id:       string;
   priority: 'high' | 'medium' | 'low';
+  category: 'buddy' | 'group';   // которая аналитическая вкладка показывает рекомендацию
   problem:  string;
   cause:    string;
   action:   string;
@@ -292,14 +304,14 @@ export interface Recommendation {
 }
 
 export const RECOMMENDATIONS: Recommendation[] = [
-  { id: 'r1', priority: 'high',   problem: 'Glute Lab — дефицит вечерних слотов',         cause: '47 запросов без матча по чт/пт 18–20ч',            action: 'Добавить 2 слота Glute Lab вечером Crystal + Karaganda',   effect: '+40 записей/мес, -23% no-match rate',         owner: 'Расписание' },
-  { id: 'r2', priority: 'high',   problem: 'Yoga — доходимость 52%',                       cause: 'Нет напоминаний, высокий no-show 34%',              action: 'Push за 2 ч + buddy mini-group формат',                    effect: 'Доходимость +20пп → 72%',                     owner: 'CRM / Продукт' },
-  { id: 'r3', priority: 'high',   problem: 'Незавершённые wizard-сессии',                   cause: 'Drop-off на шаге выбора программы',                 action: 'Push-напоминание «ты не завершила подбор подруги»',        effect: '+15% completion rate',                        owner: 'Маркетинг' },
-  { id: 'r4', priority: 'medium', problem: 'Дневная недозагрузка Crystal и Orynbor',        cause: 'Прим-тайм перегружен, день пустой',                 action: 'Запустить buddy mini-groups 12:00–15:00',                  effect: '+25 посещений/день в low-load период',        owner: 'Управляющий / Расписание' },
-  { id: 'r5', priority: 'medium', problem: 'Пробный → покупка конверсия 31%',               cause: 'Нет buddy-сопровождения в первые 30 дней',          action: 'Intro buddy flow: подобрать пару на 1-ю тренировку',       effect: '+12пп конверсии → 43%',                       owner: 'Продукт / CRM' },
-  { id: 'r6', priority: 'medium', problem: '22% клиенток 90+ дней без визита',              cause: 'Нет реактивации через buddy-механику',              action: 'Buddy reactivation email + «давно не была» flow',          effect: 'Реактивация 18% спящих',                      owner: 'CRM / Маркетинг' },
-  { id: 'r7', priority: 'low',    problem: 'Sfera — retention 61%, ниже сети',              cause: 'Новый клуб, мало постоянных клиенток',              action: 'Запустить buddy intro flow для всех новичков',             effect: 'Retention +8пп через 90 дней',                owner: 'Управляющий / Продукт' },
-  { id: 'r8', priority: 'low',    problem: 'Нет данных о sqm и capacity',                  cause: 'Не внесены в систему',                              action: 'Внести sqm по каждому клубу для точных capacity-расчётов', effect: 'Точное управление загрузкой залов',           owner: 'Управляющий' },
+  { id: 'r1', priority: 'high',   category: 'buddy', problem: 'Glute Lab — дефицит вечерних слотов',         cause: '47 запросов без матча по чт/пт 18–20ч',            action: 'Добавить 2 слота Glute Lab вечером Crystal + Karaganda',   effect: '+40 записей/мес, -23% no-match rate',         owner: 'Расписание' },
+  { id: 'r2', priority: 'high',   category: 'group', problem: 'Yoga — доходимость 52%',                       cause: 'Нет напоминаний, высокий no-show 34%',              action: 'Push за 2 ч + buddy mini-group формат',                    effect: 'Доходимость +20пп → 72%',                     owner: 'CRM / Продукт' },
+  { id: 'r3', priority: 'high',   category: 'buddy', problem: 'Незавершённые wizard-сессии',                   cause: 'Drop-off на шаге выбора программы',                 action: 'Push-напоминание «ты не завершила подбор подруги»',        effect: '+15% completion rate',                        owner: 'Маркетинг' },
+  { id: 'r4', priority: 'medium', category: 'group', problem: 'Дневная недозагрузка Crystal и Orynbor',        cause: 'Прим-тайм перегружен, день пустой',                 action: 'Запустить buddy mini-groups 12:00–15:00',                  effect: '+25 посещений/день в low-load период',        owner: 'Управляющий / Расписание' },
+  { id: 'r5', priority: 'medium', category: 'buddy', problem: 'Пробный → покупка конверсия 31%',               cause: 'Нет buddy-сопровождения в первые 30 дней',          action: 'Intro buddy flow: подобрать пару на 1-ю тренировку',       effect: '+12пп конверсии → 43%',                       owner: 'Продукт / CRM' },
+  { id: 'r6', priority: 'medium', category: 'group', problem: '22% клиенток 90+ дней без визита',              cause: 'Нет реактивации через buddy-механику',              action: 'Buddy reactivation email + «давно не была» flow',          effect: 'Реактивация 18% спящих',                      owner: 'CRM / Маркетинг' },
+  { id: 'r7', priority: 'low',    category: 'group', problem: 'Sfera — retention 61%, ниже сети',              cause: 'Новый клуб, мало постоянных клиенток',              action: 'Запустить buddy intro flow для всех новичков',             effect: 'Retention +8пп через 90 дней',                owner: 'Управляющий / Продукт' },
+  { id: 'r8', priority: 'low',    category: 'group', problem: 'Нет данных о sqm и capacity',                  cause: 'Не внесены в систему',                              action: 'Внести sqm по каждому клубу для точных capacity-расчётов', effect: 'Точное управление загрузкой залов',           owner: 'Управляющий' },
 ];
 
 export const BUDDY_FUNNEL = [
