@@ -2087,3 +2087,141 @@ img { display: block; max-width: 100%; }
   .hiw__programs-grid { grid-template-columns: 1fr 1fr; }
   .hiw__privacy { flex-direction: column; gap: 12px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   WIZARD — DARK EDITORIAL THEME
+   Overrides the default light surfaces to match the hero brand identity.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wizard-section {
+  background: var(--ig-black);
+}
+
+.wizard-card {
+  background: #121212;
+  border-color: rgba(255,255,255,0.09);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+}
+
+.wizard-back {
+  color: rgba(255,255,255,0.38);
+}
+.wizard-back:hover { color: rgba(255,255,255,0.80); }
+
+.wizard-step-counter {
+  color: rgba(255,255,255,0.28);
+}
+
+/* Progress bar — thicker + brand rose */
+.wizard-progress {
+  height: 4px;
+  background: rgba(255,255,255,0.07);
+}
+.wizard-progress__bar {
+  background: var(--ig-rose);
+}
+
+/* Questions — InvictusAlien, white */
+.wizard-step__question {
+  font-family: var(--font-display);
+  color: var(--ig-white);
+}
+
+.wizard-step__hint {
+  color: rgba(255,255,255,0.42);
+}
+
+.wizard-geo-hint {
+  color: var(--ig-blue-soft);
+}
+
+/* Chips — dark surface, rose active */
+.wizard-chip {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.11);
+  color: rgba(255,255,255,0.72);
+}
+.wizard-chip:hover {
+  border-color: rgba(255,255,255,0.32);
+  color: var(--ig-white);
+  background: rgba(255,255,255,0.09);
+}
+.wizard-chip--active {
+  background: var(--ig-rose);
+  border-color: var(--ig-rose);
+  color: var(--ig-white);
+  box-shadow: 0 4px 18px rgba(201,82,74,0.40);
+}
+.wizard-chip__sub {
+  color: rgba(255,255,255,0.28);
+}
+.wizard-chip--active .wizard-chip__sub {
+  color: rgba(255,255,255,0.65);
+}
+
+/* AI chip — blue accent on dark */
+.wizard-chip--ai {
+  background: rgba(75,82,105,0.20);
+  border-color: rgba(75,82,105,0.35);
+  color: rgba(255,255,255,0.65);
+}
+.wizard-chip--ai:hover {
+  background: var(--ig-blue);
+  border-color: var(--ig-blue);
+  color: var(--ig-white);
+}
+.wizard-chip--ai.wizard-chip--active {
+  background: var(--ig-blue);
+  border-color: var(--ig-blue);
+  box-shadow: 0 4px 18px rgba(75,82,105,0.45);
+}
+
+/* Program cards — dark surfaces, rose active */
+.wizard-programs {
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
+}
+.wizard-program-card {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
+}
+.wizard-program-card:hover {
+  border-color: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.07);
+}
+.wizard-program-card--active {
+  background: var(--ig-rose);
+  border-color: var(--ig-rose);
+  box-shadow: 0 4px 18px rgba(201,82,74,0.35);
+}
+.wizard-program-card__name {
+  color: var(--ig-white);
+}
+.wizard-program-card--active .wizard-program-card__name {
+  color: var(--ig-white);
+}
+.wizard-program-card__desc {
+  color: rgba(255,255,255,0.42);
+}
+.wizard-program-card--active .wizard-program-card__desc {
+  color: rgba(255,255,255,0.70);
+}
+
+/* Footer — dark border + inverted CTA */
+.wizard-footer {
+  border-top-color: rgba(255,255,255,0.07);
+}
+.wizard-footer .privacy-notice {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.38);
+}
+/* Primary CTA on dark card — invert to white/black */
+.wizard-footer .btn--primary {
+  background: var(--ig-white);
+  color: var(--ig-black);
+}
+.wizard-footer .btn--primary:hover {
+  background: var(--ig-offwhite);
+  box-shadow: 0 4px 20px rgba(255,255,255,0.12);
+  transform: translateY(-1px);
+}

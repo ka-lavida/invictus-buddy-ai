@@ -1,3 +1,5 @@
+import { Lock, UserCheck, Star } from 'lucide-react';
+
 interface HeroBlockProps {
   onFindBuddy:   () => void;
   onHowItWorks:  () => void;
@@ -84,15 +86,15 @@ export function HeroBlock({ onFindBuddy, onHowItWorks }: HeroBlockProps) {
       {/* Trust strip */}
       <div className="hero__trust">
         <div className="hero__trust-item">
-          <span>🔒</span>
+          <Lock size={13} strokeWidth={2} />
           <span>Контакты только с согласия</span>
         </div>
         <div className="hero__trust-item">
-          <span>👤</span>
+          <UserCheck size={13} strokeWidth={2} />
           <span>Только безопасные данные</span>
         </div>
         <div className="hero__trust-item">
-          <span>♀</span>
+          <Star size={13} strokeWidth={2} />
           <span>Girls-only space</span>
         </div>
       </div>

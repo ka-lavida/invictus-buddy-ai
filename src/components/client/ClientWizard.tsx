@@ -298,9 +298,9 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
             letterSpacing: '0.12em',
             textTransform: 'uppercase' as const,
             fontFamily: 'var(--font-mono)',
-            color: muted ? 'var(--ig-muted)' : 'var(--ig-rose)',
+            color: muted ? 'rgba(255,255,255,0.30)' : 'var(--ig-rose)',
             padding: '10px 0 6px',
-            borderBottom: '1px solid var(--ig-border)',
+            borderBottom: '1px solid rgba(255,255,255,0.07)',
             marginBottom: 8,
           }}>
             {text}
