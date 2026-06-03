@@ -28,7 +28,7 @@ export function HeroBlock({ onFindBuddy, onHowItWorks }: HeroBlockProps) {
         {/* Main headline */}
         <div className="hero__title">Найди свою</div>
         <div className="hero__title-sub">
-          для <span className="hero__title-accent">тренировки</span>
+          <span className="hero__title-accent">подругу</span> для тренировки
         </div>
 
         {/* Sub */}

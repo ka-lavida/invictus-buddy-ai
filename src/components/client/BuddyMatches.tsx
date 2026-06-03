@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Calendar, Bell, Sparkles, Send, Repeat } from 'lucide-react';
 import type { MatchResult } from '../../utils/matching';
-import type { FormData, MemberStatus } from '../../data/mockData';
+import type { FormData, MemberStatus, BuddyRequest } from '../../data/mockData';
 import { api } from '../../utils/api';
+import { suggestIcebreakers, explainMatch, suggestGroupClass, recommendPrograms } from '../../utils/ai';
+import { getEligiblePrograms } from '../../data/girlsData';
+import { InviteFriend } from './InviteFriend';
 
 // ─── Compact label for member status ────────────────────────────────────────
 const STATUS_SHORT: Record<MemberStatus, string> = {
@@ -22,6 +25,26 @@ interface EmptyStateProps {
 
 function EmptyState({ formData, onAction }: EmptyStateProps) {
   const [sending, setSending] = useState(false);
+  const base = suggestGroupClass(formData);
+  const [klass, setKlass] = useState<{ name: string; club: string; when: string; aiWhy?: string }>(
+    { name: base.name, club: base.club, when: base.when },
+  );
+
+  // AI personalizes which class to join while waiting; falls back to the base pick.
+  useEffect(() => {
+    let alive = true;
+    const eligible = getEligiblePrograms(formData.clubKey, formData.level);
+    if (!eligible.length) return;
+    recommendPrograms(
+      { goal: formData.goal, level: formData.level, format: formData.format, memberStatus: formData.memberStatus, ageRange: formData.ageRange, club: formData.clubKey },
+      eligible.map(p => ({ key: p.key, name: p.name, description: p.description, level: p.level, goals: p.goals })),
+    ).then(picks => {
+      if (!alive || !picks || !picks.length) return;
+      const top = eligible.find(p => p.key === picks[0].key);
+      if (top) setKlass({ name: top.name, club: base.club, when: base.when, aiWhy: picks[0].reason });
+    });
+    return () => { alive = false; };
+  }, []);
 
   const handleCreateRequest = async () => {
     setSending(true);
@@ -50,12 +73,30 @@ function EmptyState({ formData, onAction }: EmptyStateProps) {
         <Search size={26} strokeWidth={1.5} />
       </div>
       <div className="matches-empty__title">
-        Пока нет идеального совпадения
+        Пока подбираем тебе пару
       </div>
       <div className="matches-empty__subtitle">
-        Мы можем собрать мини-группу под тебя — оставь запрос и уведомим,
-        как только найдётся подходящий матч в твоём клубе.
+        Не нужно ждать в одиночку. Запишись на групповую — там легко познакомиться вживую,
+        а мы напишем, как только появится подходящая подруга в твоём клубе.
       </div>
+
+      {/* Meanwhile — join a group class to meet people now */}
+      <div className="meanwhile-card">
+        <div className="meanwhile-card__icon"><Calendar size={18} strokeWidth={2} /></div>
+        <div className="meanwhile-card__body">
+          <div className="meanwhile-card__label">Пока ищем — познакомься на групповой</div>
+          <div className="meanwhile-card__name">{klass.name}</div>
+          <div className="meanwhile-card__meta">{klass.club} · {klass.when}</div>
+          {klass.aiWhy && <div className="meanwhile-card__why">✦ {klass.aiWhy}</div>}
+        </div>
+        <button
+          className="btn btn--white btn--sm"
+          onClick={() => onAction(`Записали на ${klass.name}. Познакомишься там вживую!`)}
+        >
+          Записаться
+        </button>
+      </div>
+
       <div className="matches-empty__actions">
         <button
           className="btn btn--primary"
@@ -63,14 +104,19 @@ function EmptyState({ formData, onAction }: EmptyStateProps) {
           disabled={sending}
           style={{ opacity: sending ? 0.7 : 1 }}
         >
-          {sending ? 'Создаём…' : 'Создать запрос'}
+          {sending ? 'Создаём…' : 'Создать запрос на пару'}
         </button>
         <button
           className="btn btn--ghost"
-          onClick={() => onAction('Напомним, когда появится подходящая группа.')}
+          onClick={() => onAction('Уведомим, когда появится подходящая подруга.')}
         >
-          Получить уведомление
+          <Bell size={14} strokeWidth={2} /> Уведомить меня
         </button>
+      </div>
+
+      {/* Thin pool → invite your own friend for a bonus */}
+      <div style={{ marginTop: 18, textAlign: 'left' }}>
+        <InviteFriend formData={formData} onAction={onAction} tone="thin" />
       </div>
     </div>
   );
@@ -79,9 +125,9 @@ function EmptyState({ formData, onAction }: EmptyStateProps) {
 // ─── Score badge ─────────────────────────────────────────────────────────────
 
 function scoreColor(score: number): string {
-  if (score >= 80) return 'var(--ig-success)';
-  if (score >= 65) return 'var(--ig-blue)';
-  return 'var(--ig-muted)';
+  if (score >= 80) return '#5BD0A0';            // brighter green for dark bg
+  if (score >= 65) return 'var(--ig-blue-soft)';
+  return 'rgba(255,255,255,0.55)';
 }
 
 // ─── Single Match Card ────────────────────────────────────────────────────────
@@ -90,11 +136,51 @@ interface MatchCardProps {
   result:   MatchResult;
   index:    number;
   isBest:   boolean;
+  user:     FormData;
   onAction: (msg: string) => void;
 }
 
-function MatchCard({ result, index, isBest, onAction }: MatchCardProps) {
+function MatchCard({ result, index, isBest, user, onAction }: MatchCardProps) {
   const { request: r, score, reason } = result;
+
+  const [aiReason, setAiReason]   = useState(reason);
+  const [showIce, setShowIce]     = useState(false);
+  const [iceLoading, setIceLoading] = useState(false);
+  const [ice, setIce]             = useState<string[]>([]);
+  const [booked, setBooked]       = useState(false);
+  const [repeat, setRepeat]       = useState(false);
+
+  // Upgrade every match's explanation via the AI layer (warmer, LLM-written when
+  // a key is wired; otherwise the deterministic reason stays).
+  useEffect(() => {
+    let alive = true;
+    explainMatch(user, r as BuddyRequest).then(t => { if (alive && t) setAiReason(t); });
+    return () => { alive = false; };
+  }, [user, r]);
+
+  const openIcebreakers = async () => {
+    setShowIce(v => !v);
+    if (ice.length || iceLoading) return;
+    setIceLoading(true);
+    const msgs = await suggestIcebreakers(user, r as BuddyRequest);
+    setIce(msgs);
+    setIceLoading(false);
+  };
+
+  const sendIcebreaker = () => {
+    setShowIce(false);
+    onAction(`Сообщение отправлено — ${r.name.split(' ')[0]} получит уведомление. Удачи!`);
+  };
+
+  const book = () => {
+    setBooked(true);
+    onAction(r.isGroup ? 'Ты в группе! Увидимся на тренировке.' : 'Запись оформлена! Ждём вас обеих.');
+  };
+
+  const bookRepeat = () => {
+    setRepeat(true);
+    onAction('Записали вас обеих и на следующую неделю — так и формируется привычка 💪');
+  };
 
   // Club short key from club string like "Girls Crystal" → "crystal"
   const clubShort = r.club
@@ -114,23 +200,14 @@ function MatchCard({ result, index, isBest, onAction }: MatchCardProps) {
             {r.initials}
           </div>
           <div>
-            <div
-              className="match-name"
-              style={{ color: isBest ? 'var(--ig-white)' : 'var(--ig-black)' }}
-            >
+            <div className="match-name">
               {r.name}
             </div>
             <div className="match-club">
-              <div
-                className="match-club__brand"
-                style={{ color: isBest ? 'rgba(255,255,255,0.35)' : undefined }}
-              >
+              <div className="match-club__brand">
                 invictus girls
               </div>
-              <div
-                className="match-club__name"
-                style={{ color: isBest ? 'rgba(255,255,255,0.7)' : undefined }}
-              >
+              <div className="match-club__name">
                 {clubShort}
               </div>
             </div>
@@ -145,7 +222,7 @@ function MatchCard({ result, index, isBest, onAction }: MatchCardProps) {
               fontSize: 9,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.5)',
+              color: 'var(--ig-rose)',
               marginBottom: 2,
             }}>
               best match
@@ -157,10 +234,7 @@ function MatchCard({ result, index, isBest, onAction }: MatchCardProps) {
           >
             {score}%
           </div>
-          <div
-            className="match-score-label"
-            style={{ color: isBest ? 'rgba(255,255,255,0.4)' : undefined }}
-          >
+          <div className="match-score-label">
             совпадение
           </div>
         </div>
@@ -182,7 +256,7 @@ function MatchCard({ result, index, isBest, onAction }: MatchCardProps) {
         {/* AI reason */}
         <div className="match-reason">
           <span className="match-reason__icon">✦</span>
-          <span>{reason}</span>
+          <span>{aiReason}</span>
         </div>
 
         {/* Why we matched */}
@@ -205,7 +279,7 @@ function MatchCard({ result, index, isBest, onAction }: MatchCardProps) {
         <div style={{
           fontFamily: 'var(--font-mono)',
           fontSize: 10,
-          color: 'var(--ig-muted)',
+          color: 'rgba(255,255,255,0.4)',
           letterSpacing: '0.04em',
           marginBottom: 14,
         }}>
@@ -214,28 +288,66 @@ function MatchCard({ result, index, isBest, onAction }: MatchCardProps) {
 
         {/* Actions */}
         <div className="match-card__actions">
-          {r.isGroup ? (
-            <button
-              className="btn btn--primary btn--sm"
-              onClick={() => onAction('Ты в группе! Увидимся на тренировке.')}
-            >
-              Присоединиться
-            </button>
+          {booked ? (
+            <span className="match-booked">✓ {r.isGroup ? 'Ты в группе' : 'Записаны вместе'}</span>
           ) : (
-            <button
-              className="btn btn--primary btn--sm"
-              onClick={() => onAction('Запись оформлена! Ждём вас обеих.')}
-            >
-              Записаться вместе
+            <button className="btn btn--primary btn--sm" onClick={book}>
+              {r.isGroup ? 'Присоединиться' : 'Записаться вместе'}
             </button>
           )}
           <button
-            className="btn btn--ghost btn--sm"
-            onClick={() => onAction('Напомним за 2 часа до тренировки.')}
+            className="btn btn--ghost btn--sm icebreaker-btn"
+            onClick={openIcebreakers}
+            aria-expanded={showIce}
           >
-            Напоминание
+            <Sparkles size={13} strokeWidth={2} /> С чего начать
           </button>
+          {!booked && (
+            <button
+              className="btn btn--ghost btn--sm"
+              onClick={() => onAction('Напомним за 2 часа до тренировки.')}
+            >
+              Напоминание
+            </button>
+          )}
         </div>
+
+        {/* Repeat-together — turn a good first session into a habit */}
+        {booked && (
+          <div className="habit-prompt">
+            {repeat ? (
+              <div className="habit-prompt__done">✓ Закрепили на следующей неделе — так и рождается привычка 💪</div>
+            ) : (
+              <>
+                <div className="habit-prompt__text">
+                  Понравилось? Сделайте это <strong>привычкой</strong> — запишитесь вдвоём и на следующей неделе.
+                </div>
+                <button className="btn btn--white btn--sm" onClick={bookRepeat}>
+                  <Repeat size={13} strokeWidth={2} /> И на след. неделю
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Icebreaker panel — AI-suggested first messages */}
+        {showIce && (
+          <div className="icebreakers">
+            <div className="icebreakers__label">
+              <Sparkles size={11} strokeWidth={2} /> Подскажем, с чего начать переписку
+            </div>
+            {iceLoading ? (
+              <div className="icebreakers__loading">Подбираем варианты…</div>
+            ) : (
+              ice.map((msg, i) => (
+                <button key={i} className="icebreaker-option" onClick={sendIcebreaker}>
+                  <span>{msg}</span>
+                  <Send size={13} strokeWidth={2} className="icebreaker-option__send" />
+                </button>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
@@ -255,11 +367,17 @@ export function BuddyMatches({ matches, formData, onAction, onReset }: BuddyMatc
 
   return (
     <section className="matches-section">
+      <div className="matches-inner">
       <div className="matches-header">
         <div className="matches-title">
-          {hasResults
-            ? `${matches.length} ${plural(matches.length, 'матч', 'матча', 'матчей')} найдено`
-            : 'Матчи не найдены'}
+          {hasResults ? (
+            <>
+              <span style={{ fontFamily: 'var(--font-numeric)' }}>{matches.length}</span>
+              {' '}{plural(matches.length, 'матч', 'матча', 'матчей')} найдено
+            </>
+          ) : (
+            'Матчи не найдены'
+          )}
         </div>
         <div className="matches-subtitle">
           {[formData.program, formData.timeSlot, formData.city].filter(Boolean).join(' · ')}
@@ -267,17 +385,24 @@ export function BuddyMatches({ matches, formData, onAction, onReset }: BuddyMatc
       </div>
 
       {hasResults ? (
-        <div className="matches-list">
-          {matches.map((m, i) => (
-            <MatchCard
-              key={m.request.id}
-              result={m}
-              index={i}
-              isBest={i === 0}
-              onAction={onAction}
-            />
-          ))}
-        </div>
+        <>
+          <div className="matches-list">
+            {matches.map((m, i) => (
+              <MatchCard
+                key={m.request.id}
+                result={m}
+                index={i}
+                isBest={i === 0}
+                user={formData}
+                onAction={onAction}
+              />
+            ))}
+          </div>
+          {/* Confidence moment — invite a friend for a bonus */}
+          <div style={{ marginTop: 16 }}>
+            <InviteFriend formData={formData} onAction={onAction} />
+          </div>
+        </>
       ) : (
         <EmptyState formData={formData} onAction={onAction} />
       )}
@@ -286,6 +411,7 @@ export function BuddyMatches({ matches, formData, onAction, onReset }: BuddyMatc
         <button className="btn btn--ghost btn--sm" onClick={onReset}>
           Изменить параметры
         </button>
+      </div>
       </div>
     </section>
   );

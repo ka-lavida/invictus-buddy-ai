@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { ChevronLeft, ShieldCheck, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChevronLeft, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
 import {
-  GIRLS_CITIES, GIRLS_CLUBS, GIRLS_PROGRAMS, CLUB_PROGRAMS,
-  getClubsByCity, type GirlsCity, type ClubInfo, type ProgramInfo,
+  GIRLS_CITIES, GIRLS_CLUBS, GIRLS_PROGRAMS,
+  getClubsByCity, getEligiblePrograms, type GirlsCity, type ClubInfo, type ProgramInfo,
 } from '../../data/girlsData';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { distanceToClub } from '../../utils/proximity';
+import { recommendPrograms, type ProgramPick } from '../../utils/ai';
 import {
   FORMATS, LEVELS, GOALS, AGE_RANGES, MEMBER_STATUSES,
   type FormData, type Format, type Level, type Goal,
@@ -38,10 +39,10 @@ function OptionChip({
 
 // ─── Program card (step 4) ───────────────────────────────────────────────────
 function ProgramCard({
-  name, description, level, tags, selected, onClick,
+  name, description, level, tags, aiReason, selected, onClick,
 }: {
   name: string; description: string; level: string;
-  tags: string[]; selected: boolean; onClick: () => void;
+  tags: string[]; aiReason?: string; selected: boolean; onClick: () => void;
 }) {
   return (
     <button
@@ -51,7 +52,9 @@ function ProgramCard({
       aria-pressed={selected}
     >
       <div className="wizard-program-card__name">{name}</div>
-      <div className="wizard-program-card__desc">{description}</div>
+      {aiReason
+        ? <div className="wizard-program-card__ai">✦ {aiReason}</div>
+        : <div className="wizard-program-card__desc">{description}</div>}
       <div className="wizard-program-card__footer">
         {level && (
           <span style={{
@@ -87,6 +90,124 @@ function WizardProgress({ step }: { step: number }) {
   );
 }
 
+function sectionLabel(text: string, muted = false) {
+  return (
+    <div style={{
+      fontSize: 10,
+      letterSpacing: '0.12em',
+      textTransform: 'uppercase' as const,
+      fontFamily: 'var(--font-mono)',
+      color: muted ? 'rgba(255,255,255,0.30)' : 'var(--ig-rose)',
+      padding: '10px 0 6px',
+      borderBottom: '1px solid rgba(255,255,255,0.07)',
+      marginBottom: 8,
+    }}>
+      {text}
+    </div>
+  );
+}
+
+// ─── Program step (case 7) — AI-ranked recommendation ────────────────────────
+// Hard constraints (club availability + level gate) are applied here via
+// getEligiblePrograms; the AI only ranks + explains within that eligible set,
+// and recommendPrograms() validates its keys. Falls back to a deterministic
+// goal-based split if the AI is unavailable.
+function ProgramStep({
+  clubKey, level, goal, format, memberStatus, ageRange, programKey, onSelect,
+}: {
+  clubKey: string; level: string; goal: string; format: string;
+  memberStatus: string; ageRange: string; programKey: string;
+  onSelect: (key: string) => void;
+}) {
+  const realPrograms = getEligiblePrograms(clubKey, level);
+  const unknownProg = GIRLS_PROGRAMS.find(p => p.key === 'unknown')!;
+
+  const [aiPicks, setAiPicks] = useState<ProgramPick[] | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    recommendPrograms(
+      { goal, level, format, memberStatus, ageRange, club: clubKey },
+      realPrograms.map(p => ({ key: p.key, name: p.name, description: p.description, level: p.level, goals: p.goals })),
+    ).then(picks => { if (alive) { setAiPicks(picks); setLoading(false); } });
+    return () => { alive = false; };
+  }, []); // choices are fixed once we reach this step — fetch once
+
+  const reasonByKey: Record<string, string> = {};
+  let recommended: ProgramInfo[];
+  let others: ProgramInfo[];
+
+  if (aiPicks && aiPicks.length) {
+    aiPicks.forEach(p => { reasonByKey[p.key] = p.reason; });
+    const ranked = aiPicks.map(p => p.key);
+    recommended = ranked.map(k => realPrograms.find(p => p.key === k)).filter((p): p is ProgramInfo => !!p);
+    const recSet = new Set(ranked);
+    others = realPrograms.filter(p => !recSet.has(p.key));
+  } else {
+    recommended = realPrograms.filter(p => goal !== '' && p.goals.includes(goal));
+    const recSet = new Set(recommended.map(p => p.key));
+    others = realPrograms.filter(p => !recSet.has(p.key));
+  }
+
+  const topPick = aiPicks && aiPicks.length ? realPrograms.find(p => p.key === aiPicks[0].key) : null;
+
+  const renderCard = (p: ProgramInfo) => (
+    <ProgramCard
+      key={p.key}
+      name={p.name}
+      description={p.description}
+      level={p.level}
+      tags={p.tags}
+      aiReason={reasonByKey[p.key]}
+      selected={programKey === p.key}
+      onClick={() => onSelect(p.key)}
+    />
+  );
+
+  return (
+    <div className="wizard-step">
+      <div className="wizard-step__question">Выбери программу</div>
+      <div className="wizard-step__hint">
+        {aiPicks
+          ? 'Подобрано ИИ под твой профиль — или выбери любую другую'
+          : recommended.length > 0
+            ? 'Подобрано под твою цель — или выбери любую другую'
+            : `Программы клуба ${clubKey || ''}`}
+      </div>
+      <div className="wizard-programs">
+        {loading && (
+          <div className="wizard-ai-loading">
+            <Sparkles size={12} strokeWidth={2} /> ИИ подбирает программы под твои ответы…
+          </div>
+        )}
+        {recommended.length > 0 && (
+          <>
+            {sectionLabel(aiPicks ? 'Рекомендует ИИ' : 'Рекомендуем')}
+            {recommended.map(renderCard)}
+          </>
+        )}
+        {others.length > 0 && (
+          <>
+            {recommended.length > 0 && sectionLabel('Другие программы', true)}
+            {others.map(renderCard)}
+          </>
+        )}
+        <ProgramCard
+          key="unknown"
+          name={unknownProg.name}
+          description={topPick ? `✦ ИИ предлагает начать с ${topPick.name}` : unknownProg.description}
+          level=""
+          tags={[]}
+          selected={programKey === 'unknown'}
+          onClick={() => onSelect('unknown')}
+        />
+      </div>
+    </div>
+  );
+}
+
 // ─── ClientWizard ────────────────────────────────────────────────────────────
 export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
   const [step, setStep] = useState(0);
@@ -111,12 +232,6 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
   const [memberStatus, setMemberStatus] = useState<MemberStatus | ''>('');
 
   const clubsForCity = city ? getClubsByCity(city) : [];
-
-  // Programs available at the selected club, always include 'unknown'
-  const availablePrograms = GIRLS_PROGRAMS.filter(p =>
-    p.key === 'unknown' ||
-    (clubKey ? (CLUB_PROGRAMS[clubKey] ?? []).includes(p.key) : true)
-  );
 
   // Order: city, club, age, format, level, memberStatus, goal, program
   const stepValue = [
@@ -266,73 +381,19 @@ export function ClientWizard({ onSubmit, onBack }: ClientWizardProps) {
         </div>
       );
 
-      case 7: {
-        // Level gate: beginners only see DWH level-1 programs
-        const eligible = availablePrograms.filter((p: ProgramInfo) =>
-          p.key === 'unknown' || level !== 'Новичок' || p.dwhLevel === 1
-        );
-
-        const recommended = eligible.filter((p: ProgramInfo) =>
-          p.key !== 'unknown' && goal !== '' && p.goals.includes(goal)
-        );
-        const others = eligible.filter((p: ProgramInfo) =>
-          p.key !== 'unknown' && (goal === '' || !p.goals.includes(goal))
-        );
-        const unknownProg = eligible.find((p: ProgramInfo) => p.key === 'unknown');
-
-        const renderCard = (p: ProgramInfo) => (
-          <ProgramCard
-            key={p.key}
-            name={p.name}
-            description={p.description}
-            level={p.level}
-            tags={p.tags}
-            selected={programKey === p.key}
-            onClick={() => setProgramKey(p.key)}
+      case 7:
+        return (
+          <ProgramStep
+            clubKey={clubKey}
+            level={level}
+            goal={goal}
+            format={format}
+            memberStatus={memberStatus}
+            ageRange={ageRange}
+            programKey={programKey}
+            onSelect={setProgramKey}
           />
         );
-
-        const sectionLabel = (text: string, muted = false) => (
-          <div style={{
-            fontSize: 10,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase' as const,
-            fontFamily: 'var(--font-mono)',
-            color: muted ? 'rgba(255,255,255,0.30)' : 'var(--ig-rose)',
-            padding: '10px 0 6px',
-            borderBottom: '1px solid rgba(255,255,255,0.07)',
-            marginBottom: 8,
-          }}>
-            {text}
-          </div>
-        );
-
-        return (
-          <div className="wizard-step">
-            <div className="wizard-step__question">Выбери программу</div>
-            <div className="wizard-step__hint">
-              {recommended.length > 0
-                ? 'Подобрано под твою цель — или выбери любую другую'
-                : `Программы клуба ${clubKey || ''}`}
-            </div>
-            <div className="wizard-programs">
-              {recommended.length > 0 && (
-                <>
-                  {sectionLabel('Рекомендуем')}
-                  {recommended.map(renderCard)}
-                </>
-              )}
-              {others.length > 0 && (
-                <>
-                  {recommended.length > 0 && sectionLabel('Другие программы', true)}
-                  {others.map(renderCard)}
-                </>
-              )}
-              {unknownProg && renderCard(unknownProg)}
-            </div>
-          </div>
-        );
-      }
 
       default: return null;
     }

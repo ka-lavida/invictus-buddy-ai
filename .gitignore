@@ -25,6 +25,10 @@ dist-ssr
 
 # Secrets — никогда не коммитить
 server/.env
+.env
+.env.local
+.env.*.local
+!.env.example
 
 # Claude Code local settings (machine-specific paths)
 .claude/settings.local.json

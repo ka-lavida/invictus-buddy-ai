@@ -66,6 +66,10 @@ img { display: block; max-width: 100%; }
   --font-display:  'InvictusAlien', 'Arial Black', sans-serif;
   --font-body:     'IBM Plex Sans', 'IBM Sans', system-ui, sans-serif;
   --font-mono:     'IBM Plex Mono', monospace;
+  /* Numeric display: InvictusAlien has no digit glyphs, so all numbers
+     (stats, scores, KPIs) must use a digit-capable face. Plex Mono gives
+     tabular figures that suit the data-driven brand. */
+  --font-numeric:  'IBM Plex Mono', 'Arial Black', ui-monospace, monospace;
 
   /* Geometry */
   --r-xs:  4px;
@@ -560,11 +564,12 @@ img { display: block; max-width: 100%; }
 .hero__stat { text-align: center; }
 
 .hero__stat-value {
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
   font-size: 28px;
   font-weight: 700;
   color: var(--ig-white);
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .hero__stat-label {
@@ -781,7 +786,7 @@ img { display: block; max-width: 100%; }
   font-weight: 700;
   color: var(--ig-white);
   flex-shrink: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
   letter-spacing: 0.02em;
 }
 
@@ -825,11 +830,12 @@ img { display: block; max-width: 100%; }
 }
 
 .match-score-value {
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
   font-size: 18px;
   font-weight: 700;
   color: var(--ig-blue);
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .match-score-label {
@@ -1066,12 +1072,13 @@ img { display: block; max-width: 100%; }
 }
 
 .metric-card__value {
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
   font-size: 28px;
   font-weight: 700;
   color: var(--ig-black);
   line-height: 1;
   margin-bottom: 4px;
+  letter-spacing: -0.02em;
 }
 
 .metric-card__sub {
@@ -1477,7 +1484,7 @@ img { display: block; max-width: 100%; }
   font-size: 14px;
   font-weight: 700;
   color: var(--ig-black);
-  font-family: var(--font-display);
+  font-family: var(--font-numeric);
 }
 
 .funnel-row__pct {
@@ -1498,7 +1505,7 @@ img { display: block; max-width: 100%; }
 
 .wizard-section {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   padding: 32px 24px 80px;
   min-height: calc(100svh - 64px);
@@ -2109,7 +2116,7 @@ img { display: block; max-width: 100%; }
 .wizard-back:hover { color: rgba(255,255,255,0.80); }
 
 .wizard-step-counter {
-  color: rgba(255,255,255,0.28);
+  color: rgba(255,255,255,0.52);
 }
 
 /* Progress bar — thicker + brand rose */
@@ -2128,7 +2135,7 @@ img { display: block; max-width: 100%; }
 }
 
 .wizard-step__hint {
-  color: rgba(255,255,255,0.42);
+  color: rgba(255,255,255,0.6);
 }
 
 .wizard-geo-hint {
@@ -2213,7 +2220,7 @@ img { display: block; max-width: 100%; }
 .wizard-footer .privacy-notice {
   background: rgba(255,255,255,0.04);
   border-color: rgba(255,255,255,0.07);
-  color: rgba(255,255,255,0.38);
+  color: rgba(255,255,255,0.62);
 }
 /* Primary CTA on dark card — invert to white/black */
 .wizard-footer .btn--primary {
@@ -2224,4 +2231,255 @@ img { display: block; max-width: 100%; }
   background: var(--ig-offwhite);
   box-shadow: 0 4px 20px rgba(255,255,255,0.12);
   transform: translateY(-1px);
+}
+/* Disabled CTA — clearly inert, not a solid white bar */
+.wizard-footer .btn--primary.wizard-next-btn--disabled {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.32);
+  box-shadow: none;
+  opacity: 1;
+  transform: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MATCHES — DARK EDITORIAL THEME
+   Cohesive with hero + wizard: results land on the same premium dark
+   canvas instead of switching to bright white at the payoff moment.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.matches-section {
+  background: var(--ig-black);
+  min-height: calc(100svh - 64px);
+  padding: 0 24px 80px;
+}
+
+.matches-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding-top: 4px;
+}
+
+.matches-title    { color: var(--ig-white); }
+.matches-subtitle { color: rgba(255,255,255,0.5); }
+
+/* Card surface */
+.matches-section .match-card {
+  background: #121212;
+  border-color: rgba(255,255,255,0.09);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.matches-section .match-card:hover {
+  box-shadow: 0 18px 52px rgba(0,0,0,0.6);
+}
+.matches-section .match-card--best {
+  border-color: var(--ig-rose);
+  box-shadow: 0 0 0 1px var(--ig-rose), 0 18px 52px rgba(201,82,74,0.20);
+}
+
+/* Header strip — subtle instead of light-gray fog; rose-tint for best */
+.matches-section .match-card__header {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.matches-section .match-card--best .match-card__header {
+  background: rgba(201,82,74,0.10);
+}
+
+/* Text on dark */
+.matches-section .match-name        { color: var(--ig-white); }
+.matches-section .match-club__brand { color: rgba(255,255,255,0.4); }
+.matches-section .match-club__name  { color: var(--ig-blue-soft); }
+.matches-section .match-meta        { color: rgba(255,255,255,0.5); }
+.matches-section .match-dot         { background: rgba(255,255,255,0.22); }
+.matches-section .match-score-label { color: rgba(255,255,255,0.4); }
+
+/* AI reason block */
+.matches-section .match-reason {
+  background: rgba(75,82,105,0.18);
+  border-color: rgba(75,82,105,0.35);
+  color: rgba(255,255,255,0.78);
+}
+
+/* Badges on dark */
+.matches-section .badge--blue-pale { background: rgba(75,82,105,0.22); color: var(--ig-blue-soft); }
+.matches-section .badge--outline   { border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.6); }
+.matches-section .badge--dark      { background: rgba(255,255,255,0.12); color: var(--ig-white); }
+
+/* Ghost buttons (Напоминание, Изменить параметры) */
+.matches-section .btn--ghost {
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  border-color: rgba(255,255,255,0.18);
+}
+.matches-section .btn--ghost:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.32);
+  color: var(--ig-white);
+}
+
+/* Primary action — invert to white on dark */
+.matches-section .btn--primary {
+  background: var(--ig-white);
+  color: var(--ig-black);
+}
+.matches-section .btn--primary:hover {
+  background: var(--ig-offwhite);
+  box-shadow: 0 4px 20px rgba(255,255,255,0.12);
+}
+
+/* Empty state */
+.matches-section .matches-empty {
+  background: #121212;
+  border-color: rgba(255,255,255,0.14);
+}
+.matches-section .matches-empty__icon {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.55);
+}
+.matches-section .matches-empty__title    { color: var(--ig-white); }
+.matches-section .matches-empty__subtitle  { color: rgba(255,255,255,0.5); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   AI BUDDY FEATURES — icebreakers · meanwhile · invite-a-friend
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Icebreaker (AI first-message suggestions) ─────────────────────── */
+.icebreaker-btn { gap: 5px; }
+
+.icebreakers {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeUp 0.2s ease both;
+}
+
+.icebreakers__label {
+  display: flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ig-rose);
+}
+
+.icebreakers__loading {
+  font-size: 12px; color: rgba(255,255,255,0.5); padding: 6px 0;
+}
+
+.icebreaker-option {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.85);
+  font-size: 13px; line-height: 1.45;
+  transition: all var(--t);
+}
+.icebreaker-option:hover {
+  background: rgba(201,82,74,0.14);
+  border-color: var(--ig-rose);
+  color: var(--ig-white);
+}
+.icebreaker-option__send { flex-shrink: 0; opacity: 0.55; }
+.icebreaker-option:hover .icebreaker-option__send { opacity: 1; color: var(--ig-rose); }
+
+/* ── Meanwhile (group class) card in the empty state ───────────────── */
+.meanwhile-card {
+  display: flex; align-items: center; gap: 12px;
+  text-align: left;
+  margin: 20px auto 0;
+  max-width: 440px;
+  padding: 14px 16px;
+  border-radius: var(--r);
+  background: rgba(75,82,105,0.18);
+  border: 1px solid rgba(75,82,105,0.4);
+}
+.meanwhile-card__icon {
+  width: 38px; height: 38px; border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.08); color: var(--ig-blue-soft);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.meanwhile-card__body { flex: 1; min-width: 0; }
+.meanwhile-card__label {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 3px;
+}
+.meanwhile-card__name { font-size: 15px; font-weight: 700; color: var(--ig-white); }
+.meanwhile-card__meta {
+  font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,0.5);
+  margin-top: 1px; letter-spacing: 0.03em;
+}
+
+/* ── Invite-a-friend (referral) card ───────────────────────────────── */
+.invite-card {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 16px;
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, rgba(201,82,74,0.16), rgba(201,82,74,0.05));
+  border: 1px solid rgba(201,82,74,0.35);
+}
+.invite-card__icon {
+  width: 38px; height: 38px; border-radius: var(--r-sm);
+  background: var(--ig-rose); color: var(--ig-white);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.invite-card__body { flex: 1; min-width: 0; }
+.invite-card__title { font-size: 15px; font-weight: 700; color: var(--ig-white); margin-bottom: 4px; }
+.invite-card__text {
+  font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.5; margin-bottom: 12px;
+}
+.invite-card__text strong { color: var(--ig-white); }
+.invite-card__code-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.invite-card__code {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.1em; color: var(--ig-white);
+  padding: 7px 12px; border-radius: var(--r-sm);
+  background: rgba(0,0,0,0.25); border: 1px dashed rgba(255,255,255,0.3);
+}
+
+/* ── Repeat-together (habit loop after booking) ────────────────────── */
+.match-booked {
+  display: inline-flex; align-items: center;
+  font-size: 13px; font-weight: 700; color: #5BD0A0;
+  padding: 8px 4px;
+}
+
+.habit-prompt {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: rgba(91,208,160,0.12);
+  border: 1px solid rgba(91,208,160,0.30);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  animation: fadeUp 0.2s ease both;
+}
+.habit-prompt__text {
+  font-size: 13px; line-height: 1.45; color: rgba(255,255,255,0.8);
+  flex: 1; min-width: 180px;
+}
+.habit-prompt__text strong { color: var(--ig-white); }
+.habit-prompt__done { font-size: 13px; font-weight: 600; color: #5BD0A0; }
+
+/* ── AI program recommendation (wizard step 8) ─────────────────────── */
+.wizard-ai-loading {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+  color: var(--ig-rose);
+  padding: 2px 0 8px;
+}
+.wizard-program-card__ai {
+  font-size: 12px; line-height: 1.5; color: #e0867f;
+}
+.wizard-program-card--active .wizard-program-card__ai {
+  color: rgba(255,255,255,0.88);
+}
+
+/* ── AI reason on the empty-state "meanwhile" class ────────────────── */
+.meanwhile-card__why {
+  font-size: 12px; line-height: 1.4; color: rgba(255,255,255,0.7);
+  margin-top: 5px;
 }
